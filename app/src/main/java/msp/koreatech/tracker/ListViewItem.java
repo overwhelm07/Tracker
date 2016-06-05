@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * Created by JeongHeon on 2016. 6. 2..
  */
-public class ActivityInfo {
+public class ListViewItem {
     private String startTime, endTime;
     private boolean isMoving;
     private int stepCount;
@@ -15,13 +15,15 @@ public class ActivityInfo {
     long time;
     SimpleDateFormat dayTime = new SimpleDateFormat("hh:mm");
 
-    public void setStartTime(){
+    public String setStartTime(){
         time = System.currentTimeMillis();
         startTime = dayTime.format(new Date(time));
+        return startTime;
     }
-    public void setEndTime(){
+    public String setEndTime(){
         time = System.currentTimeMillis();
         endTime = dayTime.format(new Date(time));
+        return endTime;
     }
     public void setIsMoving(boolean isMoving){
         this.isMoving = isMoving;
