@@ -8,20 +8,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class PeriodicMonitorService extends Service {
     private static final String LOGTAG = "HS_Location_Tracking";
@@ -45,8 +38,13 @@ public class PeriodicMonitorService extends Service {
     private final int MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // m
     private boolean isRequestRegistered = false;
 
-    private double lon = 0.0;
-    private double lat = 0.0;
+    private long stepCount = 0;
+    private int chkSecCount = 0;
+    private int secCount = 0;
+    private boolean keepMoving = false;
+    private boolean isEnd = false;
+    ListViewItem info;
+
 
     // Alarm 시간이 되었을 때 안드로이드 시스템이 전송해주는 broadcast를 받을 receiver 정의
     // 그리고 다시 동일 시간 후 alarm이 발생하도록 설정한다.
@@ -82,19 +80,37 @@ public class PeriodicMonitorService extends Service {
 
                         boolean moving = accelMonitor.isMoving();
                         // 움직임 여부에 따라 GPS location update 요청 처리
-                        if(moving) {
-                            //Log.d(LOGTAG, "before calling requestLocation");
-                            if(!isRequestRegistered) {
-                                //requestLocation();
-                                //Log.d(LOGTAG, "after calling requestLocation");
+                        if(moving) {//이동
+                            stepCount++;
+                            //안움직이고 있다가 움직임이 감자되면 시작시간을 Set
+                            if(!keepMoving){
+                                info.setStartTime();
                             }
-                        } else {
-                            //Log.d(LOGTAG, "before calling cancelLocationRequest");
-                            if(isRequestRegistered) {
-                                //cancelLocationRequest();
-                                //Log.d(LOGTAG, "after calling cancelLocationRequest");
+                            if(secCount >= 10){//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
+                                keepMoving = true;
+                                //movingTV.setText("Moving");
+                            }else{
+                                secCount++;
+                            }
+
+                        } else {//정지
+                            //이동중에 정지가 되었을 때
+                            if(keepMoving && secCount < 10){
+                                info.setEndTime();
+                                info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
+                                info.setStepCount(stepCount);
+                                stepCount = 0;
+                                keepMoving = false;
+                                isEnd = true;
+                            }else{
+                                if(chkSecCount++ > 1){
+                                    stepCount = 0;
+                                    secCount = 0;
+                                    chkSecCount = 0;
+                                }
                             }
                         }
+                        Log.e("secCount", String.valueOf(secCount));
                         // 움직임 여부에 따라 다음 alarm 설정
                         setNextAlarm(moving);
 
@@ -133,12 +149,15 @@ public class PeriodicMonitorService extends Service {
 
         //*****
         // 화면에 정보 표시를 위해 activity의 broadcast receiver가 받을 수 있도록 broadcast 전송
-        Intent intent = new Intent(BROADCAST_ACTION_ACTIVITY);
-        intent.putExtra("moving", moving);
-        //intent.putExtra("longitude", lon);
-        //intent.putExtra("latitude", lat);
-        // broadcast 전송
-        sendBroadcast(intent);
+        if(isEnd){
+            isEnd = false;
+            Intent intent = new Intent(BROADCAST_ACTION_ACTIVITY);
+            intent.putExtra("info", info);
+            // broadcast 전송
+            sendBroadcast(intent);
+
+        }
+
     }
 
     @Override
@@ -157,6 +176,8 @@ public class PeriodicMonitorService extends Service {
 
         // AlarmManager 객체 얻기
         am = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        info = new ListViewItem();
     }
 
     @Override

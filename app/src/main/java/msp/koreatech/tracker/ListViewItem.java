@@ -1,5 +1,7 @@
 package msp.koreatech.tracker;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -7,13 +9,23 @@ import java.util.Date;
 /**
  * Created by JeongHeon on 2016. 6. 2..
  */
-public class ListViewItem {
+public class ListViewItem implements Parcelable{
     private String startTime, endTime;
     private boolean isMoving;
-    private int stepCount;
+    private long stepCount;
     private String location = " ";
     long time;
     SimpleDateFormat dayTime = new SimpleDateFormat("hh:mm");
+
+    public ListViewItem() {
+
+    }
+    public ListViewItem(Parcel src){
+        startTime = src.readString();
+        endTime = src.readString();
+        isMoving = src.readByte() != 0;
+        stepCount = src.readLong();
+    }
 
     public String setStartTime(){
         time = System.currentTimeMillis();
@@ -28,7 +40,7 @@ public class ListViewItem {
     public void setIsMoving(boolean isMoving){
         this.isMoving = isMoving;
     }
-    public void setStepCount(int stepCount){
+    public void setStepCount(long stepCount){
         this.stepCount = stepCount;
     }
     public void setLocation(String location){
@@ -78,11 +90,43 @@ public class ListViewItem {
         return isMoving;
     }
 
-    public int getStepCount() {
+    public long getStepCount() {
         return stepCount;
     }
 
     public String getLocation() {
         return location;
     }
+
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(startTime);
+        dest.writeString(endTime);
+        dest.writeByte((byte) (isMoving ? 1 : 0));
+        dest.writeLong(stepCount);
+
+    }
+    public void readFromParcel(Parcel in){
+        startTime = in.readString();
+        endTime = in.readString();
+        isMoving = (in.readByte() != 0);
+        stepCount = in.readLong();
+    }
+    public static final Parcelable.Creator<ListViewItem> CREATOR = new Parcelable.Creator<ListViewItem>(){
+        public ListViewItem createFromParcel(Parcel src){
+            return new ListViewItem(src);
+        }
+
+        @Override
+        public ListViewItem[] newArray(int size) {
+            return new ListViewItem[0];
+        }
+    };
 }

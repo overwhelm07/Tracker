@@ -63,7 +63,7 @@
             android:transcriptMode="alwaysScroll"
             android:divider="#ffcc22"
             android:dividerPadding="1.5dp"
-            android:id="@+id/listViewLayout"> </ListView>
+            android:id="@+id/listView"> </ListView>
     </LinearLayout>
 
 </LinearLayout>
