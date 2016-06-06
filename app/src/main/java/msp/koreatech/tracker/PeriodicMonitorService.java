@@ -81,6 +81,7 @@ public class PeriodicMonitorService extends Service {
                         boolean moving = accelMonitor.isMoving();
                         // 움직임 여부에 따라 GPS location update 요청 처리
                         if(moving) {//이동
+                            Log.e("stepCount", String.valueOf(stepCount));
                             stepCount++;
                             //안움직이고 있다가 움직임이 감자되면 시작시간을 Set
                             if(!keepMoving){
@@ -98,13 +99,13 @@ public class PeriodicMonitorService extends Service {
                             if(keepMoving && secCount < 10){
                                 info.setEndTime();
                                 info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
+                                Log.e("finalstepcount", String.valueOf(stepCount));
                                 info.setStepCount(stepCount);
                                 stepCount = 0;
                                 keepMoving = false;
                                 isEnd = true;
                             }else{
                                 if(chkSecCount++ > 1){
-                                    stepCount = 0;
                                     secCount = 0;
                                     chkSecCount = 0;
                                 }

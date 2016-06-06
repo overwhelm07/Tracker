@@ -20,8 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String BROADCAST_ACTION_ACTIVITY = "msp.tracker";
 
     private TextView dateTV, movingTV, stepTV, placeTV;
-    private int secCount = 0;
-    private boolean keepMoving = false;
+    private int movingTimeSum;
+    private long stepCountSum;
     ListViewAdapter adapter;
     ListViewItem info;
     ArrayList<ListViewItem> al;
@@ -42,32 +42,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("stepCount", String.valueOf(info.getStepCount()));
                 al.add(info);
 
+                if(al.get(al.size()-1).isMoving()){
+                    movingTimeSum += Integer.valueOf(al.get(al.size()-1).getDuringTime());
+                    stepCountSum += al.get(al.size()-1).getStepCount();
+                }
+                movingTV.setText("Moving time: "  + movingTimeSum + "분");
+                stepTV.setText("Steps: " + stepCountSum);
+
                 //어댑터에 모델이 바뀌었다고 알리기
                 adapter.notifyDataSetChanged();
-                /*if(moving) {
-                    //안움직이고 있다가 움직임이 감자되면 시작시간을 time에 append한다
-                    if(!keepMoving){
-                        //info.setStartTime();
-                    }
-                    if(secCount >= 60){//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
-                        keepMoving = true;
-                        movingTV.setText("Moving");
-                    }else{
-                        secCount++;
-                    }
-                } else {
-                    if(keepMoving && secCount < 59){
-                        //info.setEndTime();
-                        //info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
-                        keepMoving = false;
-                        movingTV.setText("NOT Moving");
-                    }else{
-                        secCount--;
-                    }
-                }*/
-                /*double lon = intent.getDoubleExtra("longitude", 0.0);
-                double lat = intent.getDoubleExtra("latitude", 0.0);
-                locationText.setText("Location: longitude " + lon + " latitude " + lat);*/
+
             }
         }
     };
@@ -94,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat curDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
         String strCurDate = curDateFormat.format(date);
         dateTV.setText(strCurDate);
+
+        //상단에 표시할 Moving time, Steps를 위한 변수
+        movingTimeSum = 0;
+        stepCountSum = 0;
 
 
         al = new ArrayList<>();

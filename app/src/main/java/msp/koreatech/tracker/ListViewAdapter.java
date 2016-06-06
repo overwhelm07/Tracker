@@ -58,13 +58,13 @@ public class ListViewAdapter extends BaseAdapter {
         TextView startTimeTV = (TextView)convertView.findViewById(R.id.startTimeTV);
         TextView endTimeTV = (TextView)convertView.findViewById(R.id.endTimeTV);
         TextView duringTimeTV = (TextView)convertView.findViewById(R.id.duringTimeTV);
-        TextView movingTV = (TextView) convertView.findViewById(R.id.duringTimeTV);
+        TextView movingTV = (TextView) convertView.findViewById(R.id.movingTV);
         TextView stepsTV = (TextView) convertView.findViewById(R.id.stepsTV);
         TextView locationTV = (TextView) convertView.findViewById(R.id.locationTV);
         //리스트 뷰에 표시
         startTimeTV.setText(listViewItem.getStartTime());
-        endTimeTV.setText(String.valueOf(listViewItem.getEndTime()));
-        duringTimeTV.setText(String.valueOf(listViewItem.getDuringTime()));
+        endTimeTV.setText(listViewItem.getEndTime() + "  ");
+        duringTimeTV.setText(listViewItem.getDuringTime() + "분 ");
         if(listViewItem.isMoving()){
             movingTV.setText(" 이동 ");
         }else{
