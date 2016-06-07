@@ -20,20 +20,22 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import android.os.Handler;
 
 public class PeriodicMonitorService extends Service implements GpsStatus.Listener {
     private static final String TAG = "Tracker";
     private static final int ALARM_INTERVAL = 1000 * 5;
+    private static final int GPS_TIMEOUT = 1000 * 5;
     private static final String ACTION_ALARM = "msp.koreatech.tracker.alarm";
+    private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
     private LocationManager locationManager = null;
     private GpsStatus gpsStatus;
-    private final static int MIN_TIME_UPDATES = 5000; // milliseconds
-    private final static int MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // m
-    private boolean isRequestRegistered = false;
-    private double lon = 0.0;
-    private double lat = 0.0;
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
+    private Looper looper;
+    private boolean isRequestRegistered = false;
+    private double longitude = 0.0;
+    private double latitude = 0.0;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -42,7 +44,15 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                 Log.d(TAG, "방송");
                 if(gpsStatus != null && gpsStatus.getTimeToFirstFix() == 0)
                     Log.d(TAG, "GPS를 이용할 수 없음");
+                else {
+                    Intent intentMain = new Intent(context, MainActivity.class);
+                    intentMain.setAction(ACTION_GPS_UPDATE);
+                    intentMain.putExtra("longitude", longitude);
+                    intentMain.putExtra("latitude", latitude);
+                    sendBroadcast(intentMain);
+                }
                 try {
+                    locationManager.removeUpdates(locationListener);
                     locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
                 } catch (SecurityException e) {
                     e.printStackTrace();
@@ -51,7 +61,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
     };
 
-    //private Looper looper = new Looper();
 
     private LocationListener locationListener = new LocationListener() {
         @Override
@@ -59,8 +68,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             Log.d(TAG, " Time : " + getCurrentTime() + " Longitude : " + location.getLongitude()
                     + " Latitude : " + location.getLatitude() + " Altitude: " + location.getAltitude()
                     + " Accuracy : " + location.getAccuracy());
-            lon = location.getLongitude();
-            lat = location.getLatitude();
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
         }
 
         @Override
@@ -84,9 +93,25 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate");
+        Intent intent =  new Intent(ACTION_ALARM);
         IntentFilter intentFilter = new IntentFilter(ACTION_ALARM);
-        Intent intent = new Intent(ACTION_ALARM);
-        registerReceiver(broadcastReceiver, intentFilter);
+        registerReceiver(broadcastReceiver, intentFilter);  Toast.makeText(this, "Monitor 시작", Toast.LENGTH_SHORT).show();
+        requestLocation();
+        alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
+        alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),
+                ALARM_INTERVAL, alarmIntent);
+        looper = Looper.myLooper();
+        final Handler handler = new Handler(looper);
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                try {
+                    locationManager.removeUpdates(locationListener);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, GPS_TIMEOUT);
     }
 
     @Override
@@ -96,12 +121,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         // startId: start 요청을 나타내는 unique integer id
 
         Log.d(TAG, "onStartCommand");
-        Toast.makeText(this, "Monitor 시작", Toast.LENGTH_SHORT).show();
-        requestLocation();
-        alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
-        alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),
-                ALARM_INTERVAL, alarmIntent);
+
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -179,7 +199,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         isRequestRegistered = false;
     }
 
-    public String getCurrentTime() {
+    public static String getCurrentTime() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", Locale.KOREA);
         Date currentTime = new Date();
         return formatter.format(currentTime);
