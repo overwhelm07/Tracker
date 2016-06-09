@@ -25,16 +25,17 @@ import android.os.Handler;
 
 public class PeriodicMonitorService extends Service  {
     private static final String TAG = "Tracker";
-    private static final int ALARM_INTERVAL = 1000 * 5;
+    private static final int ALARM_INTERVAL = 1000 * 10;
     private static final int GPS_TIMEOUT = 1000 * 5;
     private static final String ACTION_ALARM = "msp.koreatech.tracker.alarm";
     private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
+    private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
+
     private LocationManager locationManager = null;
-    private Intent intentMain;
+    private Intent intentUpdateGPS;
     private WifiManager wifiManager;
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
-    private Looper looper;
     private boolean isRequestRegistered = false;
     private boolean wifiScanning = false;
 
@@ -42,8 +43,11 @@ public class PeriodicMonitorService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             String stringAction = intent.getAction();
+            Looper looper = Looper.myLooper();
+            final Handler handler = new Handler(looper);
+            handler.postDelayed(runnableRemoveUpdates, GPS_TIMEOUT);
             if(stringAction.equals(ACTION_ALARM)) {
-                Log.d(TAG, "방송");
+                Log.d(TAG, "방송 수신: ACTION_ALARM");
                 try {
                     locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, looper);
                 } catch (SecurityException e) {
@@ -51,10 +55,11 @@ public class PeriodicMonitorService extends Service  {
                 }
             }
             if(stringAction.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-                Log.d(TAG, "SCAN_RESULTS_AVAILABLE_ACTION");
+                Intent intentScanResults = new Intent(ACTION_WIFI_UPDATE);
+                sendBroadcast(intentScanResults);
+                Log.d(TAG, "방송 수신: SCAN_RESULTS_AVAILABLE_ACTION");
                 checkProximity();
                 wifiScanning = false;
-
             }
         }
     };
@@ -91,10 +96,10 @@ public class PeriodicMonitorService extends Service  {
             Log.d(TAG, " Time : " + getCurrentTime() + " Longitude : " + longitude
                     + " Latitude : " + latitude + " Altitude: " + location.getAltitude()
                     + " Accuracy : " + location.getAccuracy());
-            intentMain.putExtra("longitude", longitude);
-            intentMain.putExtra("latitude", latitude);
-            intentMain.putExtra("accuracy", accuracy);
-            sendBroadcast(intentMain);
+            intentUpdateGPS.putExtra("longitude", longitude);
+            intentUpdateGPS.putExtra("latitude", latitude);
+            intentUpdateGPS.putExtra("accuracy", accuracy);
+            sendBroadcast(intentUpdateGPS);
         }
 
         @Override
@@ -124,17 +129,14 @@ public class PeriodicMonitorService extends Service  {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_ALARM);
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        intentMain = new Intent(ACTION_GPS_UPDATE);
+        intentUpdateGPS = new Intent(ACTION_GPS_UPDATE);
         registerReceiver(broadcastReceiver, intentFilter);
         requestLocation();
         wifiManager = (WifiManager)getSystemService(WIFI_SERVICE);
         alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
         alarmIntent = PendingIntent.getBroadcast(this, 0, intentAlarm, 0);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000,
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
                 ALARM_INTERVAL, alarmIntent);
-        looper = Looper.myLooper();
-        final Handler handler = new Handler(looper);
-        handler.postDelayed(runnableRemoveUpdates, GPS_TIMEOUT);
     }
 
     @Override
@@ -163,6 +165,9 @@ public class PeriodicMonitorService extends Service  {
 
 
     private void requestLocation() {
+        Looper looper = Looper.myLooper();
+        final Handler handler = new Handler(looper);
+        handler.postDelayed(runnableRemoveUpdates, GPS_TIMEOUT);
         try {
             if(locationManager == null) {
                 Log.d(TAG, "LocationManager obtained");
@@ -173,7 +178,6 @@ public class PeriodicMonitorService extends Service  {
                         MIN_TIME_UPDATES,
                         MIN_DISTANCE_CHANGE_FOR_UPDATES,
                         locationListener);*/
-                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, looper);
                 isRequestRegistered = true;
             }
         } catch (SecurityException se) {
