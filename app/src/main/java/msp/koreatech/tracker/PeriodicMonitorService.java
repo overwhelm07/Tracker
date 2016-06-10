@@ -18,6 +18,7 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                     } catch (SecurityException e) {
                                         e.printStackTrace();
                                     }
-                            else {
+                                else {
                                     alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), alarmIntent);
                                 }
                         }
@@ -98,7 +99,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                 intentUpdateStatus.putExtra("status", "SCAN_RESULTS_AVAILABLE_ACTION");
                 sendBroadcast(intentUpdateStatus);
                 Log.d(TAG, "방송 수신: SCAN_RESULTS_AVAILABLE_ACTION");
-                if(!checkProximity() && !stringWifiPlace .equals("")) {
+                if (!checkProximity() && !stringWifiPlace.equals("")) {
                     Toast.makeText(PeriodicMonitorService.this, stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
                     stringWifiPlace = "";
                 }
@@ -263,7 +264,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
     private boolean checkProximity() {
         List<ScanResult> scanList = wifiManager.getScanResults();
-        HashMap<String, Integer>  hashPlace1= new HashMap<>();
+        HashMap<String, Integer> hashPlace1 = new HashMap<>();
         int countPlace1 = 0;
         hashPlace1.put("50:1c:bf:5f:7c:ef", -46);
         hashPlace1.put("50:1c:bf:5f:7c:ee", -47);
@@ -275,14 +276,14 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         for (int i = 1; i < scanList.size(); i++) {
             ScanResult result = scanList.get(i);
             Log.d(TAG, "SSID: " + result.SSID + ", BSSID: " + result.BSSID + ", RSSI: " + result.level);
-            Integer value =  null;
-            if(hashPlace1.containsKey(result.BSSID))
+            Integer value = null;
+            if (hashPlace1.containsKey(result.BSSID))
                 value = hashPlace1.get(result.BSSID);
-            if(value != null && Math.abs(value - result.level) <= 20)
+            if (value != null && Math.abs(value - result.level) <= 20)
                 countPlace1++;
         }
 
-        if((countPlace1 >= 2)) {
+        if ((countPlace1 >= 2)) {
             stringWifiPlace = "Wi-Fi 장소1";
             Toast.makeText(PeriodicMonitorService.this, stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
             return true;
