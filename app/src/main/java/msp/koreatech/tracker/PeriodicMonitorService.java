@@ -26,10 +26,11 @@ import android.os.Handler;
 public class PeriodicMonitorService extends Service  {
     private static final String TAG = "Tracker";
     private static final int ALARM_INTERVAL = 1000 * 10;
-    private static final int GPS_TIMEOUT = 1000 * 5;
+    private static final int GPS_TIMEOUT = 1000 * 10;
     private static final String ACTION_ALARM = "msp.koreatech.tracker.alarm";
     private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
     private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
+    private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.proximity2";
     private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
 
     private LocationManager locationManager = null;
@@ -50,7 +51,7 @@ public class PeriodicMonitorService extends Service  {
             String stringAction = intent.getAction();
             Looper looper = Looper.myLooper();
             final Handler handler = new Handler(looper);
-            handler.postDelayed(runnableRemoveUpdates, GPS_TIMEOUT);
+            handler.postDelayed(runnablePostRequest, GPS_TIMEOUT);
             if(stringAction.equals(ACTION_ALARM)) {
                 Log.d(TAG, "방송 수신: ACTION_ALARM");
                 try {
@@ -59,38 +60,40 @@ public class PeriodicMonitorService extends Service  {
                     e.printStackTrace();
                 }
             }
-            if(stringAction.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+            else if(stringAction.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
                 Intent intentScanResults = new Intent(ACTION_WIFI_UPDATE);
                 sendBroadcast(intentScanResults);
                 Log.d(TAG, "방송 수신: SCAN_RESULTS_AVAILABLE_ACTION");
                 checkProximity();
                 wifiScanning = false;
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, alarmIntent);
             }
 
-            if(stringAction.equals(ACTION_GPS_PROXIMITY)) {
-                String place = "";
-                if(latitude == location1.getLatitude() && longitude == location1.getLongitude())
-                    place = "장소1";
-                else if(latitude == location2.getLatitude() && longitude == location2.getLongitude())
-                    place = "장소2";
-                Toast.makeText(PeriodicMonitorService.this, place + "로 접근", Toast.LENGTH_SHORT).show();
+            else if(stringAction.equals(ACTION_GPS_PROXIMITY) || stringAction.equals(ACTION_GPS_PROXIMITY2)) {
+                boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
+                String place = intent.getStringExtra("name");
+                if(place == null)
+                    place = "";
+                if(isEntering)
+                    Toast.makeText(PeriodicMonitorService.this, place + "(으)로 접근", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(PeriodicMonitorService.this, place + "에서 벗어남", Toast.LENGTH_SHORT).show();
+
+
             }
         }
     };
 
-    private Runnable runnableRemoveUpdates = new Runnable() {
+    private Runnable runnablePostRequest = new Runnable() {
         public void run() {
-            if(locationManager != null && locationListener != null) {
+            if(locationManager != null /*&& locationListener != null*/) {
                 if (locationManager.getGpsStatus(null).getTimeToFirstFix() == 0 && !wifiScanning) {
                     wifiScanning = true;
                     wifiManager.startScan();   //Wi-Fi
                     Log.d(TAG, "start Wi-Fi scanning");
-                }else
+                }else {
                     Log.d(TAG, "TTFF: " + locationManager.getGpsStatus(null).getTimeToFirstFix() + ", scanning: " + wifiScanning);
-                try {
-                    locationManager.removeUpdates(locationListener);
-                } catch (SecurityException e) {
-                    e.printStackTrace();
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000, alarmIntent);
                 }
             }
             else
@@ -112,6 +115,11 @@ public class PeriodicMonitorService extends Service  {
             intentUpdateGPS.putExtra("latitude", latitude);
             intentUpdateGPS.putExtra("accuracy", accuracy);
             sendBroadcast(intentUpdateGPS);
+            try {
+                locationManager.removeUpdates(locationListener);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -150,13 +158,13 @@ public class PeriodicMonitorService extends Service  {
         location1.setLongitude(127.2800555);
         location2.setLatitude(36.7618739);
         location2.setLongitude(127.2798745);
-        requestLocation();
+        setupLocationManager();
         wifiManager = (WifiManager)getSystemService(WIFI_SERVICE);
         alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
-        alarmIntent = PendingIntent.getBroadcast(this, 0, intentAlarm, 0);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-                ALARM_INTERVAL, alarmIntent);
-
+        alarmIntent = PendingIntent.getBroadcast(this, 0, intentAlarm, PendingIntent.FLAG_CANCEL_CURRENT);
+        /*alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                ALARM_INTERVAL, alarmIntent);*/
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000, alarmIntent);
     }
 
     @Override
@@ -183,8 +191,7 @@ public class PeriodicMonitorService extends Service  {
         return null;
     }
 
-
-    private void requestLocation() {
+    private void setupLocationManager() {
         try {
             if(locationManager == null) {
                 Log.d(TAG, "LocationManager obtained");
@@ -196,9 +203,13 @@ public class PeriodicMonitorService extends Service  {
                         MIN_DISTANCE_CHANGE_FOR_UPDATES,
                         locationListener);*/
                 Intent intent = new Intent(ACTION_GPS_PROXIMITY);
+                Intent intent2 = new Intent(ACTION_GPS_PROXIMITY2);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+                PendingIntent pendingIntent2 = PendingIntent.getBroadcast(this, 0, intent2, 0);
+                intent.putExtra("name", "장소1");
+                intent2.putExtra("name", "장소2");
                 locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 10, -1, pendingIntent);
-                locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 10, -1, pendingIntent);
+                locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 10, -1, pendingIntent2);
                 isRequestRegistered = true;
             }
         } catch (SecurityException se) {
@@ -209,7 +220,11 @@ public class PeriodicMonitorService extends Service  {
 
     private void cancelLocationRequest() {
         Log.d(TAG, "Cancel the location update request");
-        runnableRemoveUpdates.run();
+        try {
+            locationManager.removeUpdates(locationListener);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
         locationManager = null;
         isRequestRegistered = false;
     }
