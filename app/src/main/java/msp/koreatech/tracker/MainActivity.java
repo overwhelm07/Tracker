@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("startTime", info.getStartTime());
                 Log.e("duringTime", info.getDuringTime());
                 Log.e("stepCount", String.valueOf(info.getStepCount()));
+                Log.e("location",info.getLocation());
                 al.add(info);
 
                 if(al.get(al.size()-1).isMoving()){

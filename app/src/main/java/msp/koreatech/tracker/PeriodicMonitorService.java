@@ -90,16 +90,11 @@ public class PeriodicMonitorService extends Service {
                                 Log.i("정지끝나는시간", info.setEndTime());
                                 info.setIsMoving(false);
                                 info.setStepCount(0);
-                                info.setLocation("location");
+                                //info.setLocation("location");
                                 //keepStop = false;
                                 isEnd = true;
                             }else{
-                                if(keepStop){
-                                    secCount2 = 0;
-                                    //chkSecCount2 = 0;
-                                }else if(!keepStop){
-                                    secCount2 = 0;
-                                }
+                                secCount2 = 0;
                             }
 
 
@@ -120,7 +115,6 @@ public class PeriodicMonitorService extends Service {
 
                         } else {//정지
                             isSetTime = false;
-                            //secCount2>=300 GPS센싱-->실외 장소
 
                             //이동중에 정지가 되었을 때
                             if(keepMoving && secCount < 10){
@@ -131,22 +125,11 @@ public class PeriodicMonitorService extends Service {
                                 info.setStepCount(stepCountTV);
                                 info.setLocation("");
                                 stepCount = 0;
-                                //keepMoving = false;
                                 isEnd = true;
                             }else{
                                 stepCountTV = stepCount;
                                 stepCount = 0;
                                 secCount = 0;
-                                //정지가 되었을때 0 -> 1이상 되었을때 secCount를 초기화한다.
-                                //if(keepMoving && chkSecCount++ >= 1){
-                                /*if(keepMoving){
-                                    stepCount = 0;
-                                    secCount = 0;
-                                    chkSecCount = 0;
-                                }else if(!keepMoving){
-                                    stepCount = 0;
-                                    secCount = 0;
-                                }*/
                             }
 
                             //이동중이지 않을때 정지되어 있으면 시작시간을 Set
@@ -156,6 +139,10 @@ public class PeriodicMonitorService extends Service {
                                 Log.i("정지시작시간", info.getStartTime());
                             }
                             if(secCount2 >= 30){//정지를 300초이상(5분)이상되면 화면에 표시
+                                /*
+                                5분이상일 겨우에 info에 setLocation에 실내/실외/등록된 장소
+
+                                 */
                                 keepStop = true;
                             }else{
                                 Log.d("secCount2 : ", String.valueOf(secCount2));
@@ -210,6 +197,7 @@ public class PeriodicMonitorService extends Service {
             //isSetTime2 = false;
             keepMoving = false;
             keepStop = false;
+            Log.i("location(isEnd) :", info.getLocation());
             Intent intent = new Intent(BROADCAST_ACTION_ACTIVITY);
             intent.putExtra("info", info);
             // broadcast 전송

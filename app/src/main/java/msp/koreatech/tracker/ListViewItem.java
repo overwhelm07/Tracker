@@ -3,13 +3,14 @@ package msp.koreatech.tracker;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * Created by JeongHeon on 2016. 6. 2..
  */
-public class ListViewItem implements Parcelable{
+public class ListViewItem implements Parcelable {
     private String startTime, endTime;
     private boolean isMoving;
     private long stepCount;
@@ -20,30 +21,36 @@ public class ListViewItem implements Parcelable{
     public ListViewItem() {
 
     }
-    public ListViewItem(Parcel src){
+
+    public ListViewItem(Parcel src) {
         startTime = src.readString();
         endTime = src.readString();
         isMoving = src.readByte() != 0;
         stepCount = src.readLong();
+        location = src.readString();
     }
 
-    public String setStartTime(){
+    public String setStartTime() {
         time = System.currentTimeMillis();
         startTime = dayTime.format(new Date(time));
         return startTime;
     }
-    public String setEndTime(){
+
+    public String setEndTime() {
         time = System.currentTimeMillis();
         endTime = dayTime.format(new Date(time));
         return endTime;
     }
-    public void setIsMoving(boolean isMoving){
+
+    public void setIsMoving(boolean isMoving) {
         this.isMoving = isMoving;
     }
-    public void setStepCount(long stepCount){
+
+    public void setStepCount(long stepCount) {
         this.stepCount = stepCount;
     }
-    public void setLocation(String location){
+
+    public void setLocation(String location) {
         this.location = location;
     }
 
@@ -67,20 +74,20 @@ public class ListViewItem implements Parcelable{
         int hour2 = Integer.parseInt(eHour);
         int min2 = Integer.parseInt(eMin);
 
-        if(hour1 == hour2){
+        if (hour1 == hour2) {
             during = Math.abs(min1 - min2);
             return String.valueOf(during);
-        }else{
-            if(min1 > min2){
-                during = 60-min1+min2;
-                if(Math.abs((hour1+1)-hour2) == 0){
+        } else {
+            if (min1 > min2) {
+                during = 60 - min1 + min2;
+                if (Math.abs((hour1 + 1) - hour2) == 0) {
                     return String.valueOf(during);
-                }else{
-                    during += Math.abs((hour1+1)-hour2) * 60;
+                } else {
+                    during += Math.abs((hour1 + 1) - hour2) * 60;
                     return String.valueOf(during);
                 }
-            }else{
-                during = (hour2-hour1)*60 + (min2-min1);
+            } else {
+                during = (hour2 - hour1) * 60 + (min2 - min1);
                 return String.valueOf(during);
             }
         }
@@ -99,7 +106,6 @@ public class ListViewItem implements Parcelable{
     }
 
 
-
     @Override
     public int describeContents() {
         return 0;
@@ -111,16 +117,22 @@ public class ListViewItem implements Parcelable{
         dest.writeString(endTime);
         dest.writeByte((byte) (isMoving ? 1 : 0));
         dest.writeLong(stepCount);
+        dest.writeString(location);
+
 
     }
-    public void readFromParcel(Parcel in){
+
+    public void readFromParcel(Parcel in) {
         startTime = in.readString();
         endTime = in.readString();
         isMoving = (in.readByte() != 0);
         stepCount = in.readLong();
+        location = in.readString();
+
     }
-    public static final Parcelable.Creator<ListViewItem> CREATOR = new Parcelable.Creator<ListViewItem>(){
-        public ListViewItem createFromParcel(Parcel src){
+
+    public static final Parcelable.Creator<ListViewItem> CREATOR = new Parcelable.Creator<ListViewItem>() {
+        public ListViewItem createFromParcel(Parcel src) {
             return new ListViewItem(src);
         }
 
