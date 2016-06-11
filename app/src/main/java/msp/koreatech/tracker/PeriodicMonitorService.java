@@ -261,9 +261,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         hashPlace1.put("50:1c:bf:5f:7c:ef", -46);
         hashPlace1.put("50:1c:bf:5f:7c:ee", -47);
         hashPlace1.put("90:9f:33:59:2a:88", -49);
-        hashPlace2.put("50:1c:bf:5f:7c:ef", -46);
-        hashPlace2.put("50:1c:bf:5f:7c:ee", -47);
-        hashPlace2.put("90:9f:33:59:2a:88", -49);
+        hashPlace2.put("50:1c:bf:5b:2c:c0", -46);
+        hashPlace2.put("50:1c:bf:5f:14:71", -47);
+        hashPlace2.put("00:26:66:cc:e3:8c", -49);
 
         for (int i = 1; i < scanList.size(); i++)   //일단 BSSID 가 일치하면 RSSI 를 비교한다.
         {
