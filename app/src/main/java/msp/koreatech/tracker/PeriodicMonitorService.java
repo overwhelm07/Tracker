@@ -43,7 +43,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private WifiManager wifiManager;
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
-    private String stringWifiPlace = "";
+    private int statusInOrOut = 0;  //0: 기본값, 1: 실외, 2: 실내
+    private String stringGPSPlace = "";     //현위치 (실외)
+    private String stringWifiPlace = "";    //현위치 (실내)
     private boolean isRequestRegistered = false;
     private boolean isGPSFix;
     double longitude;
@@ -55,6 +57,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         @Override
         public void onReceive(Context context, Intent intent) {
             String stringAction = intent.getAction();
+            statusInOrOut = 0;  //초기화
             switch (stringAction) {
                 case ACTION_ALARM_IN_OR_OUT:  //알람이 발생하면 GPS 업데이트 요청을 하고 GPS 를 이용할 수 없으면 Wi-Fi 스캔을 실시한다.
                     Log.d(TAG, "방송 수신: ACTION_ALARM_IN_OR_OUT");
@@ -89,9 +92,10 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     break;
                 case WifiManager.SCAN_RESULTS_AVAILABLE_ACTION:
                     Log.d(TAG, "방송 수신: SCAN_RESULTS_AVAILABLE_ACTION");
+                    checkWifiProximity();
+                    statusInOrOut = 2;  //실외
                     Intent intentScanResults = new Intent(ACTION_WIFI_UPDATE);  //(디버깅용) 스캔이 완료됐음을 알린다
                     sendBroadcast(intentScanResults);
-                    checkWifiProximity();
                     break;
                 case ACTION_GPS_PROXIMITY:  //
                 case ACTION_GPS_PROXIMITY2:
@@ -114,6 +118,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             intentUpdateGPS.putExtra("longitude", longitude);
             intentUpdateGPS.putExtra("latitude", latitude);
             intentUpdateGPS.putExtra("accuracy", accuracy);
+            statusInOrOut = 1;  //실내
             sendBroadcast(intentUpdateGPS);
             try {
                 locationManager.removeUpdates(locationListener);
@@ -167,7 +172,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         intentUpdateGPS = new Intent(ACTION_GPS_UPDATE);    //(디버깅용) 액티비티에 GPS 변화 알림
         intentUpdateStatus = new Intent(ACTION_STATUS_UPDATE);  //(디버깅용) 상태 변화 알림
         registerReceiver(broadcastReceiver, intentFilter);
-
         setupLocationManager();
         wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
@@ -233,13 +237,13 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     /*실외에서 지정된 장소로 접근하는지 확인*/
     public void checkGPSProximity(Intent intent) {
         boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
-        String place = intent.getStringExtra("name");
-        if (place == null)
-            place = "";
+        stringGPSPlace= intent.getStringExtra("name");
+        if (stringGPSPlace == null)
+            stringGPSPlace = "";
         if (isEntering)
-            Toast.makeText(PeriodicMonitorService.this, place + "(으)로 접근", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PeriodicMonitorService.this, stringGPSPlace + "(으)로 접근", Toast.LENGTH_SHORT).show();
         else
-            Toast.makeText(PeriodicMonitorService.this, place + "에서 벗어남", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PeriodicMonitorService.this, stringGPSPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
     }
 
     /* 실내에서 지정된 장소로 접근하는지 확인
@@ -291,7 +295,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             stringWifiPlace = "";
         }
     }
-
 
     //현재 시간을 받아오는 함수
     public static String getCurrentTime() {
