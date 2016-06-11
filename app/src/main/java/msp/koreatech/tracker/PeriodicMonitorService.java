@@ -184,7 +184,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                  */
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);
                                 sendBroadcast(intentInOrOut);
-                                info.setLocation();
+                                //info.setLocation();
                                 keepStop = true;
                             }else{
                                 Log.d("secCount2 : ", String.valueOf(secCount2));
