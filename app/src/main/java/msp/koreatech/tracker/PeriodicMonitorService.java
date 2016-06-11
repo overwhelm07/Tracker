@@ -91,23 +91,11 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     Log.d(TAG, "방송 수신: SCAN_RESULTS_AVAILABLE_ACTION");
                     Intent intentScanResults = new Intent(ACTION_WIFI_UPDATE);  //(디버깅용) 스캔이 완료됐음을 알린다
                     sendBroadcast(intentScanResults);
-                    if (!checkWifiProximity() && !stringWifiPlace.equals("")) //실내에서 등록된 장소로부터 벗어나는 경우
-                    {
-                        Toast.makeText(PeriodicMonitorService.this, stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
-                        stringWifiPlace = "";
-                    }
+                    checkWifiProximity();
                     break;
                 case ACTION_GPS_PROXIMITY:  //
                 case ACTION_GPS_PROXIMITY2:
-                    boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
-                    String place = intent.getStringExtra("name");
-                    if (place == null)
-                        place = "";
-                    if (isEntering)
-                        Toast.makeText(PeriodicMonitorService.this, place + "(으)로 접근", Toast.LENGTH_SHORT).show();
-                    else
-                        Toast.makeText(PeriodicMonitorService.this, place + "에서 벗어남", Toast.LENGTH_SHORT).show();
-
+                    checkGPSProximity(intent);
                     break;
 
             }
@@ -242,16 +230,30 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         isRequestRegistered = false;
     }
 
+    /*실외에서 지정된 장소로 접근하는지 확인*/
+    public void checkGPSProximity(Intent intent) {
+        boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
+        String place = intent.getStringExtra("name");
+        if (place == null)
+            place = "";
+        if (isEntering)
+            Toast.makeText(PeriodicMonitorService.this, place + "(으)로 접근", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(PeriodicMonitorService.this, place + "에서 벗어남", Toast.LENGTH_SHORT).show();
+    }
+
     /* 실내에서 지정된 장소로 접근하는지 확인
     * 와이파이 스캔 결과를 배열로 받아서 배열 요소 중에
     * 지정된 장소에 등록된 AP가 2개 이상 있고 RSSI 신호 차이가 20 이내에 있으면
     * 등록된 장소로 접근한 것으로 간주한다.*/
-    private boolean checkWifiProximity() {
+    private void checkWifiProximity() {
         List<ScanResult> scanList = wifiManager.getScanResults();
         HashMap<String, Integer> hashPlace1 = new HashMap<>();
         HashMap<String, Integer> hashPlace2 = new HashMap<>();
         int countPlace1 = 0;
         int countPlace2 = 0;
+        boolean isApproaching = false;
+
         hashPlace1.put("50:1c:bf:5f:7c:ef", -46);
         hashPlace1.put("50:1c:bf:5f:7c:ee", -47);
         hashPlace1.put("90:9f:33:59:2a:88", -49);
@@ -275,16 +277,21 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
         if ((countPlace1 >= 2)) {
             stringWifiPlace = "실내 장소 1";
-            Toast.makeText(PeriodicMonitorService.this, stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
-            return true;
+            isApproaching = true;
         }
         if((countPlace2 >= 2)) {
             stringWifiPlace = "실내 장소 2";
-            Toast.makeText(PeriodicMonitorService.this, stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
-            return true;
+            isApproaching = true;
         }
-        return false;
+        if(isApproaching)
+            Toast.makeText(PeriodicMonitorService.this, stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
+        if (isApproaching && !stringWifiPlace.equals("")) //실내에서 등록된 장소로부터 벗어나는 경우
+        {
+            Toast.makeText(PeriodicMonitorService.this, stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
+            stringWifiPlace = "";
+        }
     }
+
 
     //현재 시간을 받아오는 함수
     public static String getCurrentTime() {
