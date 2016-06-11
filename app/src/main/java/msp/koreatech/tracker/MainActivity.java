@@ -76,5 +76,8 @@ public class MainActivity extends AppCompatActivity {
     public void onClickSetAlarm(View view) {
         Intent intent = new Intent(ACTION_ALARM_IN_OR_OUT);
         sendBroadcast(intent);
+        Intent intent2 = new Intent("msp.koreatech.tracker.gps.proximity.set");
+        intent.putExtra("flag", 1);
+
     }
 }
