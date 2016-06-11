@@ -7,9 +7,9 @@ import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,21 +17,28 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
     private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
     private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.proximity2";
+    private static final String ACTION_GPS_PROXIMITY_SET = "msp.koreatech.tracker.gps.proximity.set";
     private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
     private static final String ACTION_STATUS_UPDATE = "msp.koreatech.tracker.status";
     private Intent intentService;
+    private double latitude;
+    private double longitude;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String stringAction = intent.getAction();
             if(stringAction.equals(ACTION_GPS_UPDATE)) {
                 Toast.makeText(MainActivity.this, "GPS 전달 완료", Toast.LENGTH_SHORT).show();
-                double longitude = intent.getDoubleExtra("longitude", 0);
-                double latitude = intent.getDoubleExtra("latitude", 0);
+                longitude = intent.getDoubleExtra("longitude", 0);
+                latitude = intent.getDoubleExtra("latitude", 0);
                 float accuracy = intent.getFloatExtra("accuracy", 0);
 
-                TextView textGPS = (TextView) findViewById(R.id.textGPS);
-                textGPS.setText(String.format(Locale.KOREAN, "longitude: %f, latitude: %f, accuracy: %f", longitude, latitude, accuracy));
+                EditText editLat= (EditText) findViewById(R.id.textLat);
+                EditText editLng= (EditText) findViewById(R.id.textLng);
+                editLat.setText(String.format(Locale.KOREAN, "latitude: %f", latitude));
+                editLng.setText(String.format(Locale.KOREAN, "longitude: %f", longitude));
+              TextView textGPS = (TextView) findViewById(R.id.textGPS);
+                textGPS.setText(String.format(Locale.KOREAN, "accuracy: %f", accuracy));
             }
             else if(stringAction.equals(ACTION_WIFI_UPDATE)) {
                 Toast.makeText(MainActivity.this, "WIFI 업데이트 완료", Toast.LENGTH_SHORT).show();
@@ -76,8 +83,12 @@ public class MainActivity extends AppCompatActivity {
     public void onClickSetAlarm(View view) {
         Intent intent = new Intent(ACTION_ALARM_IN_OR_OUT);
         sendBroadcast(intent);
-        Intent intent2 = new Intent("msp.koreatech.tracker.gps.proximity.set");
-        intent.putExtra("flag", 1);
+    }
 
+    public void onClickSetProximity(View view) {
+        Intent intent = new Intent(ACTION_GPS_PROXIMITY_SET);
+        intent.putExtra("latitude", latitude);
+        intent.putExtra("longitude", longitude);
+        sendBroadcast(intent);
     }
 }
