@@ -28,7 +28,7 @@ import java.util.TimerTask;
 public class PeriodicMonitorService extends Service implements GpsStatus.Listener {
     private static final String TAG = "Tracker";
     private static final int TIMER_GPS_DELAY = 1000 * 5;
-    private static final int TIMER_WIFI_DELAY = 5 * 10;
+    private static final int TIMER_WIFI_DELAY = 1000 * 5;
     private static final String ACTION_ALARM_IN_OR_OUT = "msp.koreatech.tracker.alarm";
     private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
     private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
