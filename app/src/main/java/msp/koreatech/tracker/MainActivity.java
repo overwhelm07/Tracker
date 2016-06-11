@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String ACTION_ALARM_IN_OR_OUT = "msp.koreatech.tracker.alarm";
     private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
     private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
     private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.proximity2";
@@ -69,5 +71,10 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         stopService(intentService);
         unregisterReceiver(broadcastReceiver);
+    }
+
+    public void onClickSetAlarm(View view) {
+        Intent intent = new Intent(ACTION_ALARM_IN_OR_OUT);
+        sendBroadcast(intent);
     }
 }

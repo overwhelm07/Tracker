@@ -56,6 +56,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textStatus" />
+
+        <Button
+            android:id="@+id/buttonSetAlarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClickSetAlarm"/>
     </LinearLayout>
 
     <LinearLayout

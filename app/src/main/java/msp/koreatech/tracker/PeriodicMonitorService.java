@@ -213,8 +213,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                 location1.setLongitude(127.2800892);
                 location2.setLatitude(36.7613363);
                 location2.setLongitude(127.2799273);
-                locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 15, -1, PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 15, -1, PendingIntent.getBroadcast(this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT));
+                locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 10, -1, PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 10, -1, PendingIntent.getBroadcast(this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT));
                 isRequestRegistered = true;
             }
         } catch (SecurityException se) {
