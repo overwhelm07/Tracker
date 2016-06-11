@@ -18,8 +18,9 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private static final String BROADCAST_ACTION_ACTIVITY = "msp.tracker";
+    private static final String BROADCAST_ACTION_LIVESTEP = "msp.tracker.step";
 
-    private TextView dateTV, movingTV, stepTV, placeTV;
+    private TextView dateTV, movingTV, stepTV, placeTV, liveStepTV;
     private int movingTimeSum;
     private long stepCountSum;
     ListViewAdapter adapter;
@@ -53,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
 
             }
+            if(intent.getAction().equals(BROADCAST_ACTION_LIVESTEP)){
+                Log.e("listep call", String.valueOf(intent.getExtras().getLong("step")));
+                liveStepTV.setText("liveStep: " + String.valueOf(intent.getExtras().getLong("step")));
+            }
         }
     };
 
@@ -63,13 +68,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+        IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION_ACTIVITY);
+        intentFilter.addAction(BROADCAST_ACTION_LIVESTEP);
+        registerReceiver(MyStepReceiver, intentFilter);
+
         listView = (ListView) findViewById(R.id.listView);
         //상단 텍스트 뷰 선언
         dateTV = (TextView) findViewById(R.id.dateTV);
         movingTV = (TextView) findViewById(R.id.movingTV);
         stepTV = (TextView) findViewById(R.id.stepsTV);
         placeTV = (TextView) findViewById(R.id.placeTV);
-
+        liveStepTV = (TextView) findViewById(R.id.liveStepTV);
 
         //현재 시간을 msec으로 구하기
         long now = System.currentTimeMillis();
@@ -106,16 +115,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION_ACTIVITY);
-        registerReceiver(MyStepReceiver, intentFilter);
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(MyStepReceiver);
     }
 
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(MyStepReceiver);
+        super.onDestroy();
+    }
 }

@@ -23,7 +23,6 @@ public class ListViewAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private ArrayList<ListViewItem> al;
     private int layout;
-    private int selectedPosition = -1;
 
     public ListViewAdapter(Context context, int layout,
                            ArrayList<ListViewItem> al){
@@ -70,7 +69,16 @@ public class ListViewAdapter extends BaseAdapter {
         }else{
             movingTV.setText(" 정지 ");
         }
-        stepsTV.setText(String.valueOf(listViewItem.getStepCount()+"걸음 "));
+        if(listViewItem.getStepCount() != 0){
+            stepsTV.setText(String.valueOf(listViewItem.getStepCount()+"걸음 "));
+        }else{
+            stepsTV.setText(" ");
+        }
+        if(listViewItem.getLocation().equals("")){
+            locationTV.setText(" ");
+        }else{
+            locationTV.setText(listViewItem.getLocation());
+        }
 
         return convertView;
     }
