@@ -306,6 +306,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         intentFilter.addAction(ACTION_GPS_PROXIMITY);   //GPS 접근 알림1
         intentFilter.addAction(ACTION_GPS_PROXIMITY2);  //GPS 접근 알림2
         intentFilter.addAction(ACTION_GPS_PROXIMITY_SET);   //(디버깅용) 접근 알림 설정
+        intentUpdateGPS = new Intent(ACTION_GPS_UPDATE);
+        intentUpdateStatus = new Intent(ACTION_STATUS_UPDATE);
 
         registerReceiver(AlarmReceiver, intentFilter);
 
