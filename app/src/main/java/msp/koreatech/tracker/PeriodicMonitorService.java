@@ -40,7 +40,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
     private static final String ACTION_STATUS_UPDATE = "msp.koreatech.tracker.status";
     private static final String TAG = "Tracker";
-    private static final int TIMER_GPS_DELAY = 1000 * 5;
+    private static final int TIMER_GPS_DELAY = 1000 * 3;
     private static final int TIMER_WIFI_DELAY = 1000 * 5;
     private AlarmManager am;
     private PendingIntent pendingIntent;
@@ -210,7 +210,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                         intentUpdateStatus.putExtra("status", "GPS 요청");
                         sendBroadcast(intentUpdateStatus);
                         isGPSFix = false;
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, locationListener);
                         isSensingGPS = true;
                         if(timerGPSTimeout != null) {
                             timerGPSTimeout.cancel();
@@ -444,7 +444,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
         else
             Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();*/
-
 
         if(!isEntering) {
             if(isMovingWhenChecking) {
