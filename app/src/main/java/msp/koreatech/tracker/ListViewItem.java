@@ -62,6 +62,9 @@ public class ListViewItem implements Parcelable {
         return endTime;
     }
 
+    /*
+    11:28-08:17 289분 잘못 표시됨
+     */
     public String getDuringTime() {
         int during;
         String sHour = startTime.substring(0, 2);

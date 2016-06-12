@@ -27,12 +27,12 @@ public class MainActivity extends AppCompatActivity {
     ListViewItem info;
     ArrayList<ListViewItem> al;
     ListView listView;
-
+    int topPlaceDuringTime = 0;
 
     private BroadcastReceiver MyStepReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(BROADCAST_ACTION_ACTIVITY)) {
+            if (intent.getAction().equals(BROADCAST_ACTION_ACTIVITY)) {
                 //rms = intent.getDoubleExtra("rms", 0.0);
                 //rmsText.setText("rms: " + rms);
                 //boolean moving = intent.getBooleanExtra("moving", false);
@@ -41,21 +41,32 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("startTime", info.getStartTime());
                 Log.e("duringTime", info.getDuringTime());
                 Log.e("stepCount", String.valueOf(info.getStepCount()));
-                Log.e("location",info.getLocation());
+                Log.e("location", info.getLocation());
                 al.add(info);
 
-                if(al.get(al.size()-1).isMoving()){
-                    movingTimeSum += Integer.valueOf(al.get(al.size()-1).getDuringTime());
-                    stepCountSum += al.get(al.size()-1).getStepCount();
+                //정지 되어있으면 그 때 duringTime을 이용해서 TopPlace의 장소를 구분한다
+                if (!info.isMoving()) {
+                    if (topPlaceDuringTime < Integer.valueOf(info.getDuringTime())) {
+                        String tmp = info.getLocation().trim();
+                        if (!(tmp.equals("") || tmp.equals("실외") || tmp.equals("실내"))) {
+                            topPlaceDuringTime = Integer.valueOf(info.getDuringTime());
+                            placeTV.setText("Top Place : " + info.getLocation());
+                        }
+                    }
                 }
-                movingTV.setText("Moving time: "  + movingTimeSum + "분");
+
+                if (al.get(al.size() - 1).isMoving()) {
+                    movingTimeSum += Integer.valueOf(al.get(al.size() - 1).getDuringTime());
+                    stepCountSum += al.get(al.size() - 1).getStepCount();
+                }
+                movingTV.setText("Moving time: " + movingTimeSum + "분");
                 stepTV.setText("Steps: " + stepCountSum);
 
                 //어댑터에 모델이 바뀌었다고 알리기
                 adapter.notifyDataSetChanged();
 
             }
-            if(intent.getAction().equals(BROADCAST_ACTION_LIVESTEP)){
+            if (intent.getAction().equals(BROADCAST_ACTION_LIVESTEP)) {
                 Log.e("listep call", String.valueOf(intent.getExtras().getLong("step")));
                 liveStepTV.setText("liveStep: " + String.valueOf(intent.getExtras().getLong("step")));
             }
@@ -107,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
         //PeriodicMoniorService 인텐트 서비스 시작
         Intent intent = new Intent(this, PeriodicMonitorService.class);
         startService(intent);
-
 
 
     }
