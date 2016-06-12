@@ -78,7 +78,16 @@ public class ListViewAdapter extends BaseAdapter {
         if(listViewItem.getLocation().equals("")){
             locationTV.setText(" ");
         }else{
-            locationTV.setText(listViewItem.getLocation());
+            if(listViewItem.isMoving()){
+                String tmp = listViewItem.getLocation().trim();
+                if(tmp.equals("실내") || tmp.equals("실외")){
+                    locationTV.setText(" ");
+                }else{
+                    locationTV.setText(" " + tmp + " ");
+                }
+            }else{
+                locationTV.setText(listViewItem.getLocation());
+            }
         }
 
         return convertView;
