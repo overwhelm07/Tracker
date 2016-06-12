@@ -32,12 +32,20 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final String BROADCAST_ACTION_ACTIVITY = "msp.tracker";
     private static final String BROADCAST_ACTION_ALARM = "msp.alarm";
     private static final String BROADCAST_ACTION_LIVESTEP = "msp.tracker.step";
-    AlarmManager am;
-    PendingIntent pendingIntent;
-
+    private static final String ACTION_ALARM_IN_OR_OUT = "msp.koreatech.tracker.alarm";
+    private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
+    private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
+    private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.proximity2";
+    private static final String ACTION_GPS_PROXIMITY_SET = "msp.koreatech.tracker.gps.proximity.set";
+    private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
+    private static final String ACTION_STATUS_UPDATE = "msp.koreatech.tracker.status";
+    private static final String TAG = "Tracker";
+    private static final int TIMER_GPS_DELAY = 1000 * 5;
+    private static final int TIMER_WIFI_DELAY = 1000 * 5;
+    private AlarmManager am;
+    private PendingIntent pendingIntent;
     private PowerManager.WakeLock wakeLock;
     private CountDownTimer timer;
-
     private StepMonitor accelMonitor;
     private long period = 5000;
     private static final long activeTime = 1000;
@@ -48,19 +56,10 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private long stepCount = 0, stepCountTV = 0;
     private int secCount = 0, secCount2 = 0;//secCount는 이동할때의 초카운트 secCount2는 정지할때 초카운트
     private boolean keepMoving = false, keepStop = false;
+    private boolean isMovingWhenChecking = false;
     private boolean isEnd = false, isSetTime = false, isSetTime2 = false;
     ListViewItem info;
 
-    private static final String TAG = "Tracker";
-    private static final int TIMER_GPS_DELAY = 1000 * 5;
-    private static final int TIMER_WIFI_DELAY = 1000 * 5;
-    private static final String ACTION_ALARM_IN_OR_OUT = "msp.koreatech.tracker.alarm";
-    private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
-    private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
-    private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.proximity2";
-    private static final String ACTION_GPS_PROXIMITY_SET = "msp.koreatech.tracker.gps.proximity.set";
-    private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
-    private static final String ACTION_STATUS_UPDATE = "msp.koreatech.tracker.status";
     private Intent intentUpdateGPS;
     private Intent intentUpdateStatus;
     private LocationManager locationManager = null;
@@ -160,6 +159,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
                                 info.setStepCount(stepCountTV);
                                 //info.setLocation(""); //체크포인트
+                                isMovingWhenChecking = true;
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
                                 sendBroadcast(intentInOrOut);
                                 stepCount = 0;
@@ -444,8 +444,16 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
         else
             Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();*/
-        if(!isEntering)
-            stringGPSPlace = "실외";
+
+
+        if(!isEntering) {
+            if(isMovingWhenChecking) {
+                stringGPSPlace = "실외";
+                isMovingWhenChecking = false;
+            }
+            else
+                stringGPSPlace = "등록된 장소가 아님";
+        }
         info.setLocation(stringGPSPlace);
     }
 
