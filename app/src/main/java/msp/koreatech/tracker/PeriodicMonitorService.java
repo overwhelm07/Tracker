@@ -481,7 +481,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     countPlace1++;
             }
             if (hashPlace2.containsKey(result.BSSID)) {
-                value = hashPlace1.get(result.BSSID);
+                value = hashPlace2.get(result.BSSID);
                 if (value != null && Math.abs(value - result.level) <= 20)
                     countPlace2++;
             }
@@ -497,7 +497,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         /*if (isApproaching) { //실내에서 등록된 장소로부터 벗어나는 경우
             //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
-
         }*/
         if (!isApproaching && !stringWifiPlace.equals("")) {
             Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
