@@ -21,7 +21,6 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -83,9 +82,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     double longitude;
     double latitude;
     float accuracy;
-
-
-
 
     // Alarm 시간이 되었을 때 안드로이드 시스템이 전송해주는 broadcast를 받을 receiver 정의
     // 그리고 다시 동일 시간 후 alarm이 발생하도록 설정한다.
@@ -293,6 +289,80 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+
+        Log.d(LOGTAG, "onCreate");
+
+        // Alarm 발생 시 전송되는 broadcast를 수신할 receiver 등록
+        IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION_ALARM);
+        intentFilter.addAction(ACTION_ALARM_IN_OR_OUT);
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);  //Wi-Fi 스캔이 완료됐을 때 발생하는 이벤트
+        intentFilter.addAction(ACTION_GPS_PROXIMITY);   //GPS 접근 알림1
+        intentFilter.addAction(ACTION_GPS_PROXIMITY2);  //GPS 접근 알림2
+        intentFilter.addAction(ACTION_GPS_PROXIMITY_SET);   //(디버깅용) 접근 알림 설정
+        intentUpdateGPS = new Intent(ACTION_GPS_UPDATE);
+        intentUpdateStatus = new Intent(ACTION_STATUS_UPDATE);
+
+        registerReceiver(AlarmReceiver, intentFilter);
+
+        setupLocationManager();
+        wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+
+        // AlarmManager 객체 얻기
+        am = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        info = new ListViewItem();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // intent: startService() 호출 시 넘기는 intent 객체
+        // flags: service start 요청에 대한 부가 정보. 0, START_FLAG_REDELIVERY, START_FLAG_RETRY
+        // startId: start 요청을 나타내는 unique integer id
+
+        Log.d(LOGTAG, "onStartCommand");
+        Toast.makeText(this, "Activity Monitor 시작", Toast.LENGTH_SHORT).show();
+
+        // Alarm이 발생할 시간이 되었을 때, 안드로이드 시스템에 전송을 요청할 broadcast를 지정
+        Intent in = new Intent(BROADCAST_ACTION_ALARM);
+        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, in, 0);
+
+        // Alarm이 발생할 시간 및 alarm 발생시 이용할 pending intent 설정
+        // 설정한 시간 (5000-> 5초, 10000->10초) 후 alarm 발생
+        am.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + period, pendingIntent);
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        Toast.makeText(this, "Activity Monitor 중지", Toast.LENGTH_SHORT).show();
+
+        try {
+            // Alarm 발생 시 전송되는 broadcast 수신 receiver를 해제
+            unregisterReceiver(AlarmReceiver);
+            alarmManager.cancel(alarmIntent);
+            cancelLocationRequest();
+        } catch(IllegalArgumentException ex) {
+            ex.printStackTrace();
+        }
+        // AlarmManager에 등록한 alarm 취소
+        am.cancel(pendingIntent);
+
+        // release all the resources you use
+        if(timer != null)
+            timer.cancel();
+        if(wakeLock != null && wakeLock.isHeld())
+            wakeLock.release();
+    }
+
 
     private void setNextAlarm(boolean moving) {
 
@@ -332,77 +402,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         }
 
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onCreate() {
-
-        Log.d(LOGTAG, "onCreate");
-
-        // Alarm 발생 시 전송되는 broadcast를 수신할 receiver 등록
-        IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION_ALARM);
-        intentFilter.addAction(ACTION_ALARM_IN_OR_OUT);
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);  //Wi-Fi 스캔이 완료됐을 때 발생하는 이벤트
-        intentFilter.addAction(ACTION_GPS_PROXIMITY);   //GPS 접근 알림1
-        intentFilter.addAction(ACTION_GPS_PROXIMITY2);  //GPS 접근 알림2
-        intentFilter.addAction(ACTION_GPS_PROXIMITY_SET);   //(디버깅용) 접근 알림 설정
-
-        registerReceiver(AlarmReceiver, intentFilter);
-
-        setupLocationManager();
-        wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-
-        // AlarmManager 객체 얻기
-        am = (AlarmManager)getSystemService(ALARM_SERVICE);
-
-        info = new ListViewItem();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // intent: startService() 호출 시 넘기는 intent 객체
-        // flags: service start 요청에 대한 부가 정보. 0, START_FLAG_REDELIVERY, START_FLAG_RETRY
-        // startId: start 요청을 나타내는 unique integer id
-
-        Log.d(LOGTAG, "onStartCommand");
-        Toast.makeText(this, "Activity Monitor 시작", Toast.LENGTH_SHORT).show();
-
-        // Alarm이 발생할 시간이 되었을 때, 안드로이드 시스템에 전송을 요청할 broadcast를 지정
-        Intent in = new Intent(BROADCAST_ACTION_ALARM);
-        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, in, 0);
-
-        // Alarm이 발생할 시간 및 alarm 발생시 이용할 pending intent 설정
-        // 설정한 시간 (5000-> 5초, 10000->10초) 후 alarm 발생
-        am.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + period, pendingIntent);
-
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    public void onDestroy() {
-        Toast.makeText(this, "Activity Monitor 중지", Toast.LENGTH_SHORT).show();
-
-        try {
-            // Alarm 발생 시 전송되는 broadcast 수신 receiver를 해제
-            unregisterReceiver(AlarmReceiver);
-            alarmManager.cancel(alarmIntent);
-            cancelLocationRequest();
-        } catch(IllegalArgumentException ex) {
-            ex.printStackTrace();
-        }
-        // AlarmManager에 등록한 alarm 취소
-        am.cancel(pendingIntent);
-
-        // release all the resources you use
-        if(timer != null)
-            timer.cancel();
-        if(wakeLock != null && wakeLock.isHeld())
-            wakeLock.release();
     }
 
     /*LocationManager 서비스를 등록하고 특정 장소에 Proximity Alert 를 설정한다.*/
