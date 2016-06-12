@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
             if (intent.getAction().equals(BROADCAST_ACTION_LIVESTEP)) {
-                Log.e("listep call", String.valueOf(intent.getExtras().getLong("step")));
-                liveStepTV.setText("liveStep: " + String.valueOf(intent.getExtras().getLong("step")));
+                //Log.e("listep call", String.valueOf(intent.getExtras().getLong("step")));
+                liveStepTV.setText("liveStep: " + String.valueOf(intent.getExtras().getDouble("step")));
             }
         }
     };

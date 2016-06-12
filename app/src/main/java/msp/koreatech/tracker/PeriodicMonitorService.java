@@ -41,6 +41,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final String TAG = "Tracker";
     private static final int TIMER_GPS_DELAY = 1000 * 3;
     private static final int TIMER_WIFI_DELAY = 1000 * 5;
+    private static final double STEP_RATIO = 1.7;
     private AlarmManager am;
     private PendingIntent pendingIntent;
     private PowerManager.WakeLock wakeLock;
@@ -52,7 +53,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final long periodIncrement = 5000;//정지시 주기 5초 증가
     private static final long periodMax = 10000;//최대 max 20
 
-    private long stepCount = 0, stepCountTV = 0;
+    private double stepCount = 0;
+    private long  stepCountTV = 0;
     private int secCount = 0, secCount2 = 0;//secCount는 이동할때의 초카운트 secCount2는 정지할때 초카운트
     private boolean keepMoving = false, keepStop = false;
     private boolean isEnd = false, isSetTime = false, isSetTime2 = false;
@@ -130,7 +132,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 secCount2 = 0;
                             }
 
-                            stepCount++;
+                            stepCount = (stepCount + STEP_RATIO);
                             Log.e("stepCount", String.valueOf(stepCount));
                             //안움직이고 있다가 움직임이 감자되면 시작시간을 Set
                             if(!keepMoving && !keepStop && !isSetTime){
@@ -161,7 +163,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 stepCount = 0;
                                 isEnd = true;
                             }else{
-                                stepCountTV = stepCount;
+                                stepCountTV = (long)stepCount;
                                 stepCount = 0;
                                 secCount = 0;
                             }
