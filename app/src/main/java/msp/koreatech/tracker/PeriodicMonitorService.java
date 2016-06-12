@@ -1,6 +1,5 @@
 package msp.koreatech.tracker;
 
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -57,7 +56,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private int secCount = 0, secCount2 = 0;//secCount는 이동할때의 초카운트 secCount2는 정지할때 초카운트
     private boolean keepMoving = false, keepStop = false;
     private boolean isEnd = false, isSetTime = false, isSetTime2 = false;
-    ListViewItem info;
+    private ListViewItem info;
 
     private Intent intentUpdateGPS;
     private Intent intentUpdateStatus;
@@ -130,7 +129,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             }else{
                                 secCount2 = 0;
                             }
-
 
                             stepCount++;
                             Log.e("stepCount", String.valueOf(stepCount));
@@ -296,7 +294,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
     @Override
     public void onCreate() {
-
         Log.d(LOGTAG, "onCreate");
 
         // Alarm 발생 시 전송되는 broadcast를 수신할 receiver 등록
@@ -362,7 +359,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             wakeLock.release();
     }
 
-
     private void setNextAlarm(boolean moving) {
 
         // 움직임이면 3초 period로 등록
@@ -398,9 +394,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             intent.putExtra("info", info);
             // broadcast 전송
             sendBroadcast(intent);
-
         }
-
     }
 
     /*LocationManager 서비스를 등록하고 특정 장소에 Proximity Alert 를 설정한다.*/

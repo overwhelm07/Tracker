@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         movingTimeSum = 0;
         stepCountSum = 0;
 
-
         al = new ArrayList<>();
         adapter = new ListViewAdapter(this, R.layout.item, al);
 
@@ -115,14 +113,10 @@ public class MainActivity extends AppCompatActivity {
         listView.setDividerHeight(4);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-
         //PeriodicMoniorService 인텐트 서비스 시작
         intentService = new Intent(this, PeriodicMonitorService.class);
         startService(intentService);
-
-
     }
-
 
     @Override
     protected void onResume() {
