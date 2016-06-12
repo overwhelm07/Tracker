@@ -20,7 +20,7 @@ public class StepMonitor implements SensorEventListener {
     private int movementCount;
 
     // 움직임 여부를 판단하기 위한 3축 가속도 데이터의 RMS 값의 기준 문턱값
-    private static final double RMS_THRESHOLD = 1.0;
+    private static final double RMS_THRESHOLD = 0.5;
 
     public StepMonitor(Context context) {
         this.context = context;

@@ -463,26 +463,28 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         stringWifiPlace = "";
 
-        hashPlace1.put("50:1c:bf:5f:7c:ef", -46);
-        hashPlace1.put("50:1c:bf:5f:7c:ee", -47);
-        hashPlace1.put("90:9f:33:59:2a:88", -49);
-        hashPlace2.put("50:1c:bf:5b:2c:c0", -46);
-        hashPlace2.put("50:1c:bf:5f:14:71", -47);
-        hashPlace2.put("00:26:66:cc:e3:8c", -49);
+        hashPlace1.put("90:9f:33:5a:2a:88", -45);
+        hashPlace1.put("90:9f:33:59:2a:88", -52);
+        hashPlace1.put("64:e5:99:51:18:60", -52);
+        hashPlace2.put("90:9f:33:cd:28:60", -120);
+        hashPlace2.put("00:26:66:cc:e3:88", -148);
+        hashPlace2.put("b8:8d:12:65:74:34", -200);
 
         for (int i = 1; i < scanList.size(); i++)   //일단 BSSID 가 일치하면 RSSI 를 비교한다.
         {
             ScanResult result = scanList.get(i);
             Log.d(TAG, "SSID: " + result.SSID + ", BSSID: " + result.BSSID + ", RSSI: " + result.level);
             Integer value = null;
-            if (hashPlace1.containsKey(result.BSSID))
+            if (hashPlace1.containsKey(result.BSSID)) {
                 value = hashPlace1.get(result.BSSID);
-            if (value != null && Math.abs(value - result.level) <= 20)
-                countPlace1++;
-            if (hashPlace2.containsKey(result.BSSID))
-                value = hashPlace1.get(result.BSSID);
-            if (value != null && Math.abs(value - result.level) <= 20)
-                countPlace2++;
+                if (value != null && Math.abs(value - result.level) <= 20)
+                    countPlace1++;
+            }
+            if (hashPlace2.containsKey(result.BSSID)) {
+                value = hashPlace2.get(result.BSSID);
+                if (value != null && Math.abs(value - result.level) <= 20)
+                    countPlace2++;
+            }
         }
         if ((countPlace1 >= 2)) {
             stringWifiPlace = "실내 장소 1";
@@ -495,7 +497,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         /*if (isApproaching) { //실내에서 등록된 장소로부터 벗어나는 경우
             //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
-
         }*/
         if (!isApproaching && !stringWifiPlace.equals("")) {
             Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
