@@ -21,7 +21,6 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -83,9 +82,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     double longitude;
     double latitude;
     float accuracy;
-
-
-
 
     // Alarm 시간이 되었을 때 안드로이드 시스템이 전송해주는 broadcast를 받을 receiver 정의
     // 그리고 다시 동일 시간 후 alarm이 발생하도록 설정한다.
@@ -184,7 +180,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                  */
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);
                                 sendBroadcast(intentInOrOut);
-                                info.setLocation();
+                                //info.setLocation();
                                 keepStop = true;
                             }else{
                                 Log.d("secCount2 : ", String.valueOf(secCount2));
@@ -293,47 +289,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
     }
 
-
-    private void setNextAlarm(boolean moving) {
-
-        // 움직임이면 3초 period로 등록
-        // 움직임이 아니면 5초 증가, max 20초로 제한
-        if(moving) {
-            Log.d(LOGTAG, "MOVING!!");
-            period = periodForMoving;
-        } else {
-            Log.d(LOGTAG, "NOT MOVING!!");
-            period = period + periodIncrement;
-            if(period >= periodMax) {
-                period = periodMax;
-            }
-        }
-        Log.d(LOGTAG, "Next alarm: " + period);
-
-        // 다음 alarm 등록
-        Intent in = new Intent(BROADCAST_ACTION_ALARM);
-        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, in, 0);
-        am.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + period - activeTime, pendingIntent);
-
-        //*****
-        // 화면에 정보 표시를 위해 activity의 broadcast receiver가 받을 수 있도록 broadcast 전송
-        if(isEnd){
-            isEnd = false;
-            //isSetTime = false;
-            //isSetTime2 = false;
-            keepMoving = false;
-            keepStop = false;
-            Log.i("location(isEnd) :", info.getLocation());
-            Intent intent = new Intent(BROADCAST_ACTION_ACTIVITY);
-            intent.putExtra("info", info);
-            // broadcast 전송
-            sendBroadcast(intent);
-
-        }
-
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -384,6 +339,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @Override
     public void onDestroy() {
         Toast.makeText(this, "Activity Monitor 중지", Toast.LENGTH_SHORT).show();
 
@@ -403,6 +359,47 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             timer.cancel();
         if(wakeLock != null && wakeLock.isHeld())
             wakeLock.release();
+    }
+
+
+    private void setNextAlarm(boolean moving) {
+
+        // 움직임이면 3초 period로 등록
+        // 움직임이 아니면 5초 증가, max 20초로 제한
+        if(moving) {
+            Log.d(LOGTAG, "MOVING!!");
+            period = periodForMoving;
+        } else {
+            Log.d(LOGTAG, "NOT MOVING!!");
+            period = period + periodIncrement;
+            if(period >= periodMax) {
+                period = periodMax;
+            }
+        }
+        Log.d(LOGTAG, "Next alarm: " + period);
+
+        // 다음 alarm 등록
+        Intent in = new Intent(BROADCAST_ACTION_ALARM);
+        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, in, 0);
+        am.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + period - activeTime, pendingIntent);
+
+        //*****
+        // 화면에 정보 표시를 위해 activity의 broadcast receiver가 받을 수 있도록 broadcast 전송
+        if(isEnd){
+            isEnd = false;
+            //isSetTime = false;
+            //isSetTime2 = false;
+            keepMoving = false;
+            keepStop = false;
+            Log.i("location(isEnd) :", info.getLocation());
+            Intent intent = new Intent(BROADCAST_ACTION_ACTIVITY);
+            intent.putExtra("info", info);
+            // broadcast 전송
+            sendBroadcast(intent);
+
+        }
+
     }
 
     /*LocationManager 서비스를 등록하고 특정 장소에 Proximity Alert 를 설정한다.*/
