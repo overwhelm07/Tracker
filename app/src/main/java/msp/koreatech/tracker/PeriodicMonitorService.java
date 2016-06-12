@@ -159,7 +159,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 Log.i("이동 끝나는 시간", info.setEndTime());
                                 info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
                                 info.setStepCount(stepCountTV);
-                                info.setLocation("");
+                                //info.setLocation(""); //체크포인트
+                                Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
+                                sendBroadcast(intentInOrOut);
                                 stepCount = 0;
                                 isEnd = true;
                             }else{
