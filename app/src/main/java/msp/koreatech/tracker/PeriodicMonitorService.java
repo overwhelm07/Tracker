@@ -448,11 +448,11 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         if(!isEntering) {
             if(isMovingWhenChecking) {
-                stringGPSPlace = "실외";
+                stringGPSPlace = "등록된 장소가 아님";
                 isMovingWhenChecking = false;
             }
             else
-                stringGPSPlace = "등록된 장소가 아님";
+                stringGPSPlace = "실외";
         }
         info.setLocation(stringGPSPlace);
     }
