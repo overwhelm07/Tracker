@@ -130,8 +130,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         unregisterReceiver(MyStepReceiver);
         stopService(intentService);
-        super.onDestroy();
     }
 }
