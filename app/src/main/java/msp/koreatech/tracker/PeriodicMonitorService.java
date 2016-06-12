@@ -482,7 +482,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         {
             ScanResult result = scanList.get(i);
             Log.d(TAG, "SSID: " + result.SSID + ", BSSID: " + result.BSSID + ", RSSI: " + result.level);
-            Integer value = null;
+            Integer value;
             if (hashPlace1.containsKey(result.BSSID)) {
                 value = hashPlace1.get(result.BSSID);
                 if (value != null && Math.abs(value - result.level) <= 20)
