@@ -73,7 +73,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private Timer timerWifiTimeout;    ////TIMER_DELAY 만큼의 시간이 지나고 발생
     private int statusInOrOut = 0;  //0: 기본값, 1: 실외, 2: 실내
     private String stringGPSPlace = "";     //현위치 (실외)
-    private String stringWifiPlace = "";    //현위치 (실내)
+    private String stringWifiPlace;    //현위치 (실내)
     private boolean isRequestRegistered = false;
     private boolean isGPSFix;
     private boolean isSensingGPS = false;
@@ -229,9 +229,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     sendBroadcast(intentUpdateStatus);
                     isSensingWifi = false;
                 }
-            }else if(intent.getAction().equals(ACTION_GPS_PROXIMITY)||intent.getAction().equals(ACTION_GPS_PROXIMITY2)){
+            }/*else if(intent.getAction().equals(ACTION_GPS_PROXIMITY)||intent.getAction().equals(ACTION_GPS_PROXIMITY2)){
                 checkGPSProximity(intent);
-            }else if(intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)){
+            }*/else if(intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)){
                 setGPSProximityAlert(1);
             }
         }
@@ -310,7 +310,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         intentUpdateStatus = new Intent(ACTION_STATUS_UPDATE);
 
         registerReceiver(AlarmReceiver, intentFilter);
-
         setupLocationManager();
         wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 
@@ -438,10 +437,15 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         stringGPSPlace = intent.getStringExtra("name");
         if (stringGPSPlace == null)
             stringGPSPlace = "";
-        if (isEntering)
+        /*if (isEntering) {
             Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "(으)로 접근", Toast.LENGTH_SHORT).show();
-        /*else
+        }
+        else
             Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();*/
+        if(!isEntering)
+            stringGPSPlace = "실외";
+        info.setLocation(stringGPSPlace);
+
     }
 
     /* 실내에서 지정된 장소로 접근하는지 확인
@@ -455,6 +459,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         int countPlace1 = 0;
         int countPlace2 = 0;
         boolean isApproaching = false;
+
+        stringWifiPlace = "";
 
         hashPlace1.put("50:1c:bf:5f:7c:ef", -46);
         hashPlace1.put("50:1c:bf:5f:7c:ee", -47);
@@ -486,12 +492,17 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             isApproaching = true;
         }
 
-        if (isApproaching) //실내에서 등록된 장소로부터 벗어나는 경우
-            Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
+        /*if (isApproaching) { //실내에서 등록된 장소로부터 벗어나는 경우
+            //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
+
+        }*/
         if (!isApproaching && !stringWifiPlace.equals("")) {
             Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
-            stringWifiPlace = "";
+            stringWifiPlace = "실내";
         }
+
+        info.setLocation(stringWifiPlace);
+        keepStop = true;
     }
 
     //GPS 접근 알림 설정
@@ -522,8 +533,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             location2.setLongitude(longitude);
         }
 
-        intentGPSProximity1 = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        intentGPSProximity2 = PendingIntent.getBroadcast(this, 1, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+        intentGPSProximity1 = PendingIntent.getBroadcast(this, 0, intent, 0);
+        intentGPSProximity2 = PendingIntent.getBroadcast(this, 1, intent2, 0);
         locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 10, -1, intentGPSProximity1);
         locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 10, -1, intentGPSProximity2);
     }
