@@ -62,7 +62,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private Intent intentUpdateStatus;
     private LocationManager locationManager = null;
     private WifiManager wifiManager;
-    private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
     private PendingIntent intentGPSProximity1;
     private PendingIntent intentGPSProximity2;
@@ -344,13 +343,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         try {
             // Alarm 발생 시 전송되는 broadcast 수신 receiver를 해제
             unregisterReceiver(AlarmReceiver);
-            alarmManager.cancel(alarmIntent);
+            am.cancel(pendingIntent);
             cancelLocationRequest();
         } catch(IllegalArgumentException ex) {
             ex.printStackTrace();
         }
         // AlarmManager에 등록한 alarm 취소
-        am.cancel(pendingIntent);
 
         // release all the resources you use
         if(timer != null)
@@ -428,10 +426,11 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     /*실외에서 지정된 장소로 접근하는지 확인*/
     public void checkGPSProximity(Intent intent) {
         boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
-        stringGPSPlace = intent.getStringExtra("name");
+
         if (stringGPSPlace == null)
             stringGPSPlace = "";
-
+        if(isEntering)
+            stringGPSPlace = intent.getStringExtra("name");
         if(!isEntering) {
                 stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
         }
@@ -514,8 +513,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         if (flag == 0) {
             location1.setLatitude(36.761349);
             location1.setLongitude(127.279715);
-            location2.setLatitude(36.761294);
-            location2.setLongitude(127.280323);
+            location2.setLatitude(36.763065 );
+            location2.setLongitude(127.282488);
         } else {
             location1.setLatitude(latitude);
             location1.setLongitude(longitude);
