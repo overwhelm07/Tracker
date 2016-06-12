@@ -95,14 +95,15 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                         isSensingWifi = false;
                     }
                     break;
-                case ACTION_GPS_PROXIMITY:
+               /* case ACTION_GPS_PROXIMITY:
                 case ACTION_GPS_PROXIMITY2:
                     checkGPSProximity(intent);
-                    break;
+                    break;*/
                 case ACTION_GPS_PROXIMITY_SET:
                     setGPSProximityAlert(1);
                     break;
             }
+            checkGPSProximity(intent);
         }
     };
 
@@ -229,7 +230,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         if (stringGPSPlace == null)
             stringGPSPlace = "";
         if (isEntering)
-            Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "(으)로 접근", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PeriodicMonitorService.this, "액션 이름: " + intent.getAction() + ", 실외: " + stringGPSPlace + "(으)로 접근", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(PeriodicMonitorService.this, "액션 이름: " + intent.getAction(), Toast.LENGTH_SHORT).show();
         /*else
             Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();*/
     }
