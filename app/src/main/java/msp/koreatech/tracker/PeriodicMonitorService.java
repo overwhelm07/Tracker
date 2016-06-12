@@ -463,12 +463,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         stringWifiPlace = "";
 
-        hashPlace1.put("50:1c:bf:5f:7c:ef", -46);
-        hashPlace1.put("50:1c:bf:5f:7c:ee", -47);
-        hashPlace1.put("90:9f:33:59:2a:88", -49);
-        hashPlace2.put("50:1c:bf:5b:2c:c0", -46);
-        hashPlace2.put("50:1c:bf:5f:14:71", -47);
-        hashPlace2.put("00:26:66:cc:e3:8c", -49);
+        hashPlace1.put("90:9f:33:5a:2a:88", -45);
+        hashPlace1.put("90:9f:33:59:2a:88", -52);
+        hashPlace1.put("64:e5:99:51:18:60", -52);
+        hashPlace2.put("90:9f:33:cd:28:60", -84);
+        hashPlace2.put("00:26:66:cc:e3:88", -85);
+        hashPlace2.put("b8:8d:12:65:74:34", -77);
 
         for (int i = 1; i < scanList.size(); i++)   //일단 BSSID 가 일치하면 RSSI 를 비교한다.
         {
