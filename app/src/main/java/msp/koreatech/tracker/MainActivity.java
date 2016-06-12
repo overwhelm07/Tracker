@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String BROADCAST_ACTION_ACTIVITY = "msp.tracker";
     private static final String BROADCAST_ACTION_LIVESTEP = "msp.tracker.step";
 
+    private Intent intentService;
     private TextView dateTV, movingTV, stepTV, placeTV, liveStepTV;
     private int movingTimeSum;
     private long stepCountSum;
@@ -116,8 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         //PeriodicMoniorService 인텐트 서비스 시작
-        Intent intent = new Intent(this, PeriodicMonitorService.class);
-        startService(intent);
+        intentService = new Intent(this, PeriodicMonitorService.class);
+        startService(intentService);
 
 
     }
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(MyStepReceiver);
+        stopService(intentService);
         super.onDestroy();
     }
 }
