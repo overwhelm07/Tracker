@@ -56,7 +56,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private long stepCount = 0, stepCountTV = 0;
     private int secCount = 0, secCount2 = 0;//secCount는 이동할때의 초카운트 secCount2는 정지할때 초카운트
     private boolean keepMoving = false, keepStop = false;
-    private boolean isMovingWhenChecking = false;
     private boolean isEnd = false, isSetTime = false, isSetTime2 = false;
     ListViewItem info;
 
@@ -159,7 +158,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
                                 info.setStepCount(stepCountTV);
                                 //info.setLocation(""); //체크포인트
-                                isMovingWhenChecking = true;
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
                                 sendBroadcast(intentInOrOut);
                                 stepCount = 0;
@@ -439,18 +437,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         stringGPSPlace = intent.getStringExtra("name");
         if (stringGPSPlace == null)
             stringGPSPlace = "";
-        /*if (isEntering) {
-            Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "(으)로 접근", Toast.LENGTH_SHORT).show();
-        }
-        else
-            Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();*/
 
         if(!isEntering) {
-            if(isMovingWhenChecking) {  //등록된 장소가 아니고 이동중일 때
-                stringGPSPlace = "등록된 장소가 아님";
-                isMovingWhenChecking = false;
-            }
-            else
                 stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
         }
         info.setLocation(stringGPSPlace);
