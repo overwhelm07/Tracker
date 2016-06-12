@@ -229,9 +229,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     sendBroadcast(intentUpdateStatus);
                     isSensingWifi = false;
                 }
-            }/*else if(intent.getAction().equals(ACTION_GPS_PROXIMITY)||intent.getAction().equals(ACTION_GPS_PROXIMITY2)){
+            }else if(intent.getAction().equals(ACTION_GPS_PROXIMITY)||intent.getAction().equals(ACTION_GPS_PROXIMITY2)){
                 checkGPSProximity(intent);
-            }*/else if(intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)){
+            }else if(intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)){
                 setGPSProximityAlert(1);
             }
         }
@@ -445,6 +445,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         if(!isEntering)
             stringGPSPlace = "실외";
         info.setLocation(stringGPSPlace);
+        keepStop = true;
 
     }
 
