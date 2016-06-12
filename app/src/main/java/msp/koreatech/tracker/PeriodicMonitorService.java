@@ -445,8 +445,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         if(!isEntering)
             stringGPSPlace = "실외";
         info.setLocation(stringGPSPlace);
-        keepStop = true;
-
     }
 
     /* 실내에서 지정된 장소로 접근하는지 확인
@@ -503,7 +501,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
 
         info.setLocation(stringWifiPlace);
-        keepStop = true;
     }
 
     //GPS 접근 알림 설정
