@@ -446,12 +446,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             Toast.makeText(PeriodicMonitorService.this, "실외: " + stringGPSPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();*/
 
         if(!isEntering) {
-            if(isMovingWhenChecking) {
+            if(isMovingWhenChecking) {  //등록된 장소가 아니고 이동중일 때
                 stringGPSPlace = "등록된 장소가 아님";
                 isMovingWhenChecking = false;
             }
             else
-                stringGPSPlace = "실외";
+                stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
         }
         info.setLocation(stringGPSPlace);
     }
