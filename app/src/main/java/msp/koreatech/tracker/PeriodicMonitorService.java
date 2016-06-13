@@ -54,7 +54,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private long stepCountTV = 0;
     private int secCount = 0, secCount2 = 0;//secCount는 이동할때의 초카운트 secCount2는 정지할때 초카운트
     private boolean keepMoving = false, keepStop = false;
-    private boolean isEnd = false, isSetTime = false, isSetTime2 = false;
+    private boolean isSetTime = false, isSetTime2 = false;
     private ListViewItem info;
     private LocationManager locationManager = null;
     private WifiManager wifiManager;
@@ -69,8 +69,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     double longitude;
     double latitude;
     float accuracy;
-
-    private Intent intentGPS, intentGPS2;
 
     // Alarm 시간이 되었을 때 안드로이드 시스템이 전송해주는 broadcast를 받을 receiver 정의
     // 그리고 다시 동일 시간 후 alarm이 발생하도록 설정한다.
@@ -120,7 +118,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
                                 sendBroadcast(intentInOrOut);
-                                isEnd = true;
                             } else {
                                 secCount2 = 0;
                             }
@@ -142,14 +139,13 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
                             //이동중에 정지가 되었을 때
                             if (keepMoving && secCount < 10) {
-                                Log.d(TAG,"이동중에 정지가 되었을 때" );
+                                Log.d(TAG, "이동중에 정지가 되었을 때");
                                 Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime2 = true;
                                 info.setEndTime();//이동 끝나는 시간
                                 Log.i("이동 끝나는 시간", info.setEndTime());
                                 info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
                                 info.setStepCount(stepCountTV);
-                                isEnd = true;
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
                                 sendBroadcast(intentInOrOut);
                                 stepCount = 0;
@@ -502,23 +498,23 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
     //GPS 접근 알림 설정
     public void setGPSProximityAlert(int flag) throws SecurityException {
-        Location location1;
-        Location location2;
+        Location location1, location2;
+        Intent intentGPS1, intentGPS2;
 
         if (intentGPSProximity1 != null && intentGPSProximity2 != null) {
             locationManager.removeProximityAlert(intentGPSProximity1);
             locationManager.removeProximityAlert(intentGPSProximity2);
         }
-        intentGPS = new Intent(ACTION_GPS_PROXIMITY);
+        intentGPS1 = new Intent(ACTION_GPS_PROXIMITY);
         intentGPS2 = new Intent(ACTION_GPS_PROXIMITY2);
-        intentGPS.putExtra("name", "운동장");
+        intentGPS1.putExtra("name", "운동장");
         intentGPS2.putExtra("name", "대학본부 앞 잔디광장");
         location1 = new Location(LocationManager.GPS_PROVIDER);
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
         if (flag == 0) {
-            location1.setLatitude(36.762581);
-            location1.setLongitude(127.284527);
+            location1.setLatitude(36.762581);   //36.761378, 127.279720 //테스트 1
+            location1.setLongitude(127.284527); //36.762581, 127.284527 //장소 1
             location2.setLatitude(36.764215);
             location2.setLongitude(127.282173);
         } else {
@@ -528,7 +524,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             location2.setLongitude(longitude);
         }
 
-        intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intentGPS, 0);
+        intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intentGPS1, 0);
         intentGPSProximity2 = PendingIntent.getBroadcast(this, 50505, intentGPS2, 0);
         locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 80.0f, -1, intentGPSProximity1);
         locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 50.0f, -1, intentGPSProximity2);
