@@ -482,17 +482,17 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             }
         }
         if ((countPlace1 >= 2)) {
-            stringWifiPlace = "실내 장소 1";
+            stringWifiPlace = "A312";
             isApproaching = true;
         }
         if ((countPlace2 >= 2)) {
-            stringWifiPlace = "실내 장소 2";
+            stringWifiPlace = "다산1층로비";
             isApproaching = true;
         }
         /*if (isApproaching) { //실내에서 등록된 장소로부터 벗어나는 경우
             //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
         }*/
-        if (!isApproaching) {
+        if (!isApproaching ) {
             Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
             stringWifiPlace = "실내";
         }
@@ -523,8 +523,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
         Intent intent = new Intent(ACTION_GPS_PROXIMITY);
         Intent intent2 = new Intent(ACTION_GPS_PROXIMITY2);
-        intent.putExtra("name", "야외 장소 1");
-        intent2.putExtra("name", "야외 장소 2");
+        intent.putExtra("name", "운동장");
+        intent2.putExtra("name", "대학본부 앞 잔디광장 벤");
         location1 = new Location(LocationManager.GPS_PROVIDER);
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
