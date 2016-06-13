@@ -125,14 +125,13 @@ public class ListViewItem implements Parcelable {
 
     }
 
-    public void readFromParcel(Parcel in) {
+/*    public void readFromParcel(Parcel in) {
         startTime = in.readString();
         endTime = in.readString();
         isMoving = (in.readByte() != 0);
         stepCount = in.readLong();
         location = in.readString();
-
-    }
+    }*/
 
     public static final Parcelable.Creator<ListViewItem> CREATOR = new Parcelable.Creator<ListViewItem>() {
         public ListViewItem createFromParcel(Parcel src) {

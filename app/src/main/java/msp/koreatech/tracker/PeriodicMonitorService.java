@@ -143,6 +143,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
                             //이동중에 정지가 되었을 때
                             if (keepMoving && secCount < 10) {
+                                Log.d(TAG,"이동중에 정지가 되었을 때" );
                                 Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime2 = true;
                                 info.setEndTime();//이동 끝나는 시간
@@ -224,15 +225,16 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             }
             if (isEnd) {
                 isEnd = false;
+                info.setEndTime();
                 //isSetTime = false;
                 //isSetTime2 = false;
                 keepMoving = false;
                 keepStop = false;
                 Log.i("location(isEnd) :", info.getLocation());
-                Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
+                /*Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
                 intentInfo.putExtra("info", info);
                 // broadcast 전송
-                sendBroadcast(intentInfo);
+                sendBroadcast(intentInfo);*/
             }
         }
     };
@@ -430,6 +432,11 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             e.printStackTrace();
         }
         isSensingGPS = false;
+
+        Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
+        intentInfo.putExtra("info", info);
+        // broadcast 전송
+        sendBroadcast(intentInfo);
     }
 
     /* 실내에서 지정된 장소로 접근하는지 확인
@@ -451,9 +458,17 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         hashPlace1.put("92:9f:33:cd:28:62", -54);
         hashPlace1.put("90:9f:33:cd:28:62", -54);
         hashPlace1.put("50:1c:bf:41:cf:21", -63);
+        hashPlace1.put("e4:f4:c6:1c:7b:6f", -63);
+        hashPlace1.put("00:26:66:cc:e3:88", -71);
+        hashPlace1.put("00:1d:e5:8d:30:a1", -71);
+        hashPlace1.put("50:1c:bf:5f:7c:e1", -71);
         hashPlace2.put("20:3a:07:49:5c:e0", -76);
-        hashPlace2.put("88:75:56:1f:b6:d0", -77);
+        hashPlace2.put("20:3a:07:49:5c:e1", -77);
         hashPlace2.put("a4:18:75:58:77:de", -78);
+        hashPlace2.put("a4:18:75:58:77:df", -78);
+        hashPlace2.put("a4:18:75:58:77:d0", -78);
+        hashPlace2.put("20:3a:07:49:5c:ef", -78);
+        hashPlace2.put("34:bd:c8:bf:2a:a1", -78);
         for (int i = 1; i < scanList.size(); i++)   //일단 BSSID 가 일치하면 RSSI 를 비교한다.
         {
             ScanResult result = scanList.get(i);
@@ -461,12 +476,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             Integer value;
             if (hashPlace1.containsKey(result.BSSID)) {
                 value = hashPlace1.get(result.BSSID);
-                if (value != null && Math.abs(value - result.level) <= 20)
+                if (value != null && Math.abs(value - result.level) <= 30)
                     countPlace1++;
             }
             if (hashPlace2.containsKey(result.BSSID)) {
                 value = hashPlace2.get(result.BSSID);
-                if (value != null && Math.abs(value - result.level) <= 20)
+                if (value != null && Math.abs(value - result.level) <= 30)
                     countPlace2++;
             }
         }
@@ -485,8 +500,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
             stringWifiPlace = "실내";
         }
-
         info.setLocation(stringWifiPlace);
+
+        Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
+        intentInfo.putExtra("info", info);
+        // broadcast 전송
+        sendBroadcast(intentInfo);
 
     }
 
