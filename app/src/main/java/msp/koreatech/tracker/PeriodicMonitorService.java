@@ -529,10 +529,10 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
         if (flag == 0) {
-            location1.setLatitude(36.761349);
-            location1.setLongitude(127.279715);
-            location2.setLatitude(36.763065);
-            location2.setLongitude(127.282488);
+            location1.setLatitude(36.762581);
+            location1.setLongitude(127.284527);
+            location2.setLatitude(36.764215);
+            location2.setLongitude(127.282173);
         } else {
             location1.setLatitude(latitude);
             location1.setLongitude(longitude);
