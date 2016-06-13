@@ -406,7 +406,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         Toast.makeText(PeriodicMonitorService.this, "checkGPSProximity", Toast.LENGTH_SHORT).show();
 
         if(stringGPSPlace == null)
-            stringGPSPlace = "";
+            stringGPSPlace = "실외";
         info.setLocation(stringGPSPlace);
 
         try {
@@ -515,8 +515,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
         if (flag == 0) {
-            location1.setLatitude(36.762581);   //36.761378, 127.279720 //테스트 1
-            location1.setLongitude(127.284527); //36.762581, 127.284527 //장소 1
+            location1.setLatitude(36.761378);   //36.761378, 127.279720 //테스트 1
+            location1.setLongitude(127.279720); //36.762581, 127.284527 //장소 1
             location2.setLatitude(36.764215);
             location2.setLongitude(127.282173);
         } else {
