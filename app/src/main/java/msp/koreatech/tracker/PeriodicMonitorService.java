@@ -37,7 +37,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final String ACTION_GPS_PROXIMITY_SET = "msp.koreatech.tracker.gps.proximity.set";
     private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
     private static final String TAG = "Tracker";
-    private static final int TIMER_GPS_DELAY = 5000;
+    private static final int TIMER_GPS_DELAY = 3000;
     private static final int TIMER_WIFI_DELAY = 1000 * 5;
     private static final double STEP_RATIO = 1.65;
     private AlarmManager am;
@@ -72,6 +72,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     double longitude;
     double latitude;
     float accuracy;
+
+    private Intent intentGPS, intentGPS2;
 
     // Alarm 시간이 되었을 때 안드로이드 시스템이 전송해주는 broadcast를 받을 receiver 정의
     // 그리고 다시 동일 시간 후 alarm이 발생하도록 설정한다.
@@ -193,7 +195,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                 Log.d(TAG, "방송 수신: ACTION_ALARM_IN_OR_OUT");
                 isSensingGPS = false;
                 try {
-                    Log.d(TAG, "GPS 요청");
+                    Log.d(TAG, "gps 요청");
                     isGPSFix = false;
                     locationManager.removeUpdates(locationListener);
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2500, 0, locationListener);
@@ -220,7 +222,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     checkGPSProximity(intent);
             } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)) {
                 setGPSProximityAlert(1);
-            }
+            }/*
             if (isEnd) {
                 isEnd = false;
                 //isSetTime = false;
@@ -232,7 +234,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                 intentInfo.putExtra("info", info);
                 // broadcast 전송
                 sendBroadcast(intentInfo);
-            }
+            }*/
         }
     };
 
@@ -248,10 +250,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             longitude = location.getLongitude();
             latitude = location.getLatitude();
             accuracy = location.getAccuracy();
-            intentUpdateGPS.putExtra("longitude", longitude);
-            intentUpdateGPS.putExtra("latitude", latitude);
-            intentUpdateGPS.putExtra("accuracy", accuracy);
-            sendBroadcast(intentUpdateGPS);
+            /*sendBroadcast(intentGPS);
+            sendBroadcast(intentGPS2);*/
             /*try {
                 locationManager.removeUpdates(locationListener);
             } catch (SecurityException e) {
@@ -521,10 +521,10 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             locationManager.removeProximityAlert(intentGPSProximity1);
             locationManager.removeProximityAlert(intentGPSProximity2);
         }
-        Intent intent = new Intent(ACTION_GPS_PROXIMITY);
-        Intent intent2 = new Intent(ACTION_GPS_PROXIMITY2);
-        intent.putExtra("name", "운동장");
-        intent2.putExtra("name", "대학본부 앞 잔디광장 벤");
+        intentGPS = new Intent(ACTION_GPS_PROXIMITY);
+        intentGPS2 = new Intent(ACTION_GPS_PROXIMITY2);
+        intentGPS.putExtra("name", "운동장");
+        intentGPS2.putExtra("name", "대학본부 앞 잔디광장");
         location1 = new Location(LocationManager.GPS_PROVIDER);
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
@@ -540,14 +540,14 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             location2.setLongitude(longitude);
         }
 
-        intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intent, 0);
-        intentGPSProximity2 = PendingIntent.getBroadcast(this, 50505, intent2, 0);
+        intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intentGPS, 0);
+        intentGPSProximity2 = PendingIntent.getBroadcast(this, 50505, intentGPS2, 0);
         locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 80.0f, -1, intentGPSProximity1);
         locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 50.0f, -1, intentGPSProximity2);
     }
 
     public TimerTask getTask(int flag) {
-        if (flag == 0)
+        if (flag == 0)  //taskGPSTimeout
             return new TimerTask() {
                 @Override
                 public void run() {
