@@ -462,9 +462,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         hashPlace1.put("92:9f:33:cd:28:62", -54);
         hashPlace1.put("90:9f:33:cd:28:62", -54);
         hashPlace1.put("50:1c:bf:41:cf:21", -63);
-        hashPlace2.put("90:9f:33:cd:28:60", -120);
-        hashPlace2.put("00:26:66:cc:e3:88", -148);
-        hashPlace2.put("b8:8d:12:65:74:34", -200);
+        hashPlace2.put("20:3a:07:49:5c:e0", -76);
+        hashPlace2.put("88:75:56:1f:b6:d0", -77);
+        hashPlace2.put("a4:18:75:58:77:de", -78);
         for (int i = 1; i < scanList.size(); i++)   //일단 BSSID 가 일치하면 RSSI 를 비교한다.
         {
             ScanResult result = scanList.get(i);
@@ -492,7 +492,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         /*if (isApproaching) { //실내에서 등록된 장소로부터 벗어나는 경우
             //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
         }*/
-        if (!isApproaching && !stringWifiPlace.equals("")) {
+        if (!isApproaching) {
             Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
             stringWifiPlace = "실내";
         }
