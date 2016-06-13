@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;

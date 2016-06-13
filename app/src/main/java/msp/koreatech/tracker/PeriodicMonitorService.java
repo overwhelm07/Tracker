@@ -62,10 +62,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private PendingIntent intentGPSProximity2;
     private Timer timerGPSTimeout;    ////TIMER_DELAY 만큼의 시간이 지나고 발생
     private Timer timerWifiTimeout;    ////TIMER_DELAY 만큼의 시간이 지나고 발생
+    private String stringGPSPlace;     //현위치 (실외)
     private boolean isRequestRegistered = false;
     private boolean isGPSFix;
     private boolean isSensingGPS = false;
     private boolean isSensingWifi = false;
+    private boolean isEntering = false;
     double longitude;
     double latitude;
     float accuracy;
@@ -214,8 +216,16 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     isSensingWifi = false;
                 }
             } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY) || intent.getAction().equals(ACTION_GPS_PROXIMITY2)) {
-                if (isSensingGPS)
-                    checkGPSProximity(intent);
+                if (isSensingGPS) {
+                    isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
+                    if(isEntering) {
+                        stringGPSPlace = intent.getStringExtra("name");
+                        Toast.makeText(PeriodicMonitorService.this, "액션 이름: " + intent.getAction() + ", " + stringGPSPlace, Toast.LENGTH_SHORT).show();
+                    }
+                    if (!isEntering) {
+                        stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
+                    }
+                }
             } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)) {
                 setGPSProximityAlert(1);
             }
@@ -234,8 +244,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             longitude = location.getLongitude();
             latitude = location.getLatitude();
             accuracy = location.getAccuracy();
-            /*sendBroadcast(intentGPS);
-            sendBroadcast(intentGPS2);*/
+            checkGPSProximity();
             /*try {
                 locationManager.removeUpdates(locationListener);
             } catch (SecurityException e) {
@@ -391,22 +400,14 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     }
 
     /*실외에서 지정된 장소로 접근하는지 확인*/
-    public void checkGPSProximity(Intent intent) {
+    public void checkGPSProximity() {
         Log.e("checkGPSProximity", "GPS");
-        boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
-        String stringGPSPlace;     //현위치 (실외)
 
         Toast.makeText(PeriodicMonitorService.this, "checkGPSProximity", Toast.LENGTH_SHORT).show();
-        stringGPSPlace = "";
-        if (isEntering) {
-            stringGPSPlace = intent.getStringExtra("name");
-            Toast.makeText(PeriodicMonitorService.this, "액션 이름: " + intent.getAction() + ", " + stringGPSPlace, Toast.LENGTH_SHORT).show();
-        }
-        if (!isEntering) {
-            stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
-        }
-        info.setLocation(stringGPSPlace);
 
+        if(stringGPSPlace == null)
+            stringGPSPlace = "";
+        info.setLocation(stringGPSPlace);
 
         try {
             locationManager.removeUpdates(locationListener);
@@ -420,6 +421,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         // broadcast 전송
         sendBroadcast(intentInfo);
 
+        isEntering = false;
         keepMoving = false;
         keepStop = false;
     }
