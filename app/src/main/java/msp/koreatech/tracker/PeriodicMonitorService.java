@@ -225,7 +225,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             }
             if (isEnd) {
                 isEnd = false;
-                info.setEndTime();
                 //isSetTime = false;
                 //isSetTime2 = false;
                 keepMoving = false;
@@ -433,6 +432,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
         isSensingGPS = false;
 
+        info.setEndTime();
         Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
         intentInfo.putExtra("info", info);
         // broadcast 전송
@@ -501,7 +501,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             stringWifiPlace = "실내";
         }
         info.setLocation(stringWifiPlace);
-
+        info.setEndTime();
         Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
         intentInfo.putExtra("info", info);
         // broadcast 전송
