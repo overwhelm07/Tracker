@@ -20,13 +20,14 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PeriodicMonitorService extends Service implements GpsStatus.Listener{
+public class PeriodicMonitorService extends Service implements GpsStatus.Listener {
     private static final String LOGTAG = "HS_Location_Tracking";
     private static final String BROADCAST_ACTION_ACTIVITY = "msp.tracker";
     private static final String BROADCAST_ACTION_ALARM = "msp.alarm";
@@ -34,7 +35,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final String ACTION_ALARM_IN_OR_OUT = "msp.koreatech.tracker.alarm";
     private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
     private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
-    private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.proximity.2nd";
+    private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.2nd.proximity";
     private static final String ACTION_GPS_PROXIMITY_SET = "msp.koreatech.tracker.gps.proximity.set";
     private static final String ACTION_WIFI_UPDATE = "msp.koreatech.tracker.wifi";
     private static final String ACTION_STATUS_UPDATE = "msp.koreatech.tracker.status";
@@ -54,7 +55,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final long periodMax = 10000;//최대 max 20
 
     private double stepCount = 0;
-    private long  stepCountTV = 0;
+    private long stepCountTV = 0;
     private int secCount = 0, secCount2 = 0;//secCount는 이동할때의 초카운트 secCount2는 정지할때 초카운트
     private boolean keepMoving = false, keepStop = false;
     private boolean isEnd = false, isSetTime = false, isSetTime2 = false;
@@ -86,7 +87,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private BroadcastReceiver AlarmReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(BROADCAST_ACTION_ALARM)) {
+            if (intent.getAction().equals(BROADCAST_ACTION_ALARM)) {
                 Log.d(LOGTAG, "Alarm fired!!!!");
                 //-----------------
                 // Alarm receiver에서는 장시간에 걸친 연산을 수행하지 않도록 한다
@@ -115,10 +116,10 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
                         boolean moving = accelMonitor.isMoving();
                         // 움직임 여부에 따라 GPS location update 요청 처리
-                        if(moving) {//이동
+                        if (moving) {//이동
                             isSetTime2 = false;
                             //정지중에 이동 되었을 때
-                            if(keepStop && secCount2 < 300){
+                            if (keepStop && secCount2 < 300) {
                                 //isSetTime = true;
                                 info.setEndTime();//정지끝나는시간
                                 Log.i("정지끝나는시간", info.setEndTime());
@@ -127,22 +128,22 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 //info.setLocation("location");
                                 //keepStop = false;
                                 isEnd = true;
-                            }else{
+                            } else {
                                 secCount2 = 0;
                             }
 
                             stepCount = (stepCount + STEP_RATIO);
                             Log.e("stepCount", String.valueOf(stepCount));
                             //안움직이고 있다가 움직임이 감자되면 시작시간을 Set
-                            if(!keepMoving && !keepStop && !isSetTime){
+                            if (!keepMoving && !keepStop && !isSetTime) {
                                 isSetTime = true;
                                 info.setStartTime();//이동시작시간
                                 Log.i("이동시작시간", info.getStartTime());
                             }
-                            if(secCount >= 10){//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
+                            if (secCount >= 10) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
                                 keepMoving = true;
                                 //movingTV.setText("Moving");
-                            }else{
+                            } else {
                                 secCount++;
                             }
 
@@ -150,7 +151,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             isSetTime = false;
 
                             //이동중에 정지가 되었을 때
-                            if(keepMoving && secCount < 10){
+                            if (keepMoving && secCount < 10) {
                                 Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_LONG).show();
                                 //isSetTime2 = true;
                                 info.setEndTime();//이동 끝나는 시간
@@ -162,19 +163,19 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
                                 sendBroadcast(intentInOrOut);
                                 stepCount = 0;
-                            }else{
-                                stepCountTV = (long)stepCount;
+                            } else {
+                                stepCountTV = (long) stepCount;
                                 stepCount = 0;
                                 secCount = 0;
                             }
 
                             //이동중이지 않을때 정지되어 있으면 시작시간을 Set
-                            if(!keepStop && !keepMoving && !isSetTime2){
+                            if (!keepStop && !keepMoving && !isSetTime2) {
                                 isSetTime2 = true;
                                 info.setStartTime();//정지 시작시간
                                 Log.i("정지시작시간", info.getStartTime());
                             }
-                            if(secCount2 >= 30){//정지를 300초이상(5분)이상되면 화면에 표시
+                            if (secCount2 >= 30) {//정지를 300초이상(5분)이상되면 화면에 표시
                                 /*
                                 5분이상일 겨우에 info에 setLocation에 실내/실외/등록된 장소
                                  */
@@ -182,9 +183,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 sendBroadcast(intentInOrOut);
                                 //info.setLocation();
                                 keepStop = true;
-                            }else{
+                            } else {
                                 Log.d("secCount2 : ", String.valueOf(secCount2));
-                                secCount2+=period/1000;//정지되어있을때는 1초마다 호출이 아닌 주기마다 호출이되기 때문에 현재 주기(millisecond)에 1000을 나눠 현재 주기의 초를 더함
+                                secCount2 += period / 1000;//정지되어있을때는 1초마다 호출이 아닌 주기마다 호출이되기 때문에 현재 주기(millisecond)에 1000을 나눠 현재 주기의 초를 더함
                             }
                         }
                         Log.e("secCount", String.valueOf(secCount));
@@ -199,8 +200,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     }
                 };
                 timer.start();
-            }
-            else if(intent.getAction().equals(ACTION_ALARM_IN_OR_OUT)){
+            } else if (intent.getAction().equals(ACTION_ALARM_IN_OR_OUT)) {
                 Log.d(TAG, "방송 수신: ACTION_ALARM_IN_OR_OUT");
                 if (!isSensingGPS)
                     try {
@@ -211,15 +211,16 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                         locationManager.removeUpdates(locationListener);
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
                         isSensingGPS = true;
-                        if(timerGPSTimeout != null) {
+                        if (timerGPSTimeout != null) {
                             timerGPSTimeout.cancel();
+                            timerGPSTimeout = null;
                         }
                         timerGPSTimeout = new Timer();
                         timerGPSTimeout.schedule(getTask(0), TIMER_GPS_DELAY);
                     } catch (SecurityException e) {
                         e.printStackTrace();
                     }
-            }else if(intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)){
+            } else if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
                 Log.d(TAG, "방송 수신: SCAN_RESULTS_AVAILABLE_ACTION");
                 if (!isSensingGPS && isSensingWifi) {
                     checkWifiProximity();
@@ -230,12 +231,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     sendBroadcast(intentUpdateStatus);
                     isSensingWifi = false;
                 }
-            }else if(intent.getAction().equals(ACTION_GPS_PROXIMITY)||intent.getAction().equals(ACTION_GPS_PROXIMITY2)){
+            } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY) || intent.getAction().equals(ACTION_GPS_PROXIMITY2)) {
                 checkGPSProximity(intent);
-            }else if(intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)){
-                setGPSProximityAlert(1);
+            } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)) {
+                setGPSProximityAlert();
             }
-            if(isEnd){
+            if (isEnd) {
                 isEnd = false;
                 //isSetTime = false;
                 //isSetTime2 = false;
@@ -266,7 +267,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             statusInOrOut = 1;  //실내
             sendBroadcast(intentUpdateGPS);
             try {
-                locationManager.removeUpdates(locationListener);
+                //locationManager.removeUpdates(locationListener);
                 isSensingGPS = false;
             } catch (SecurityException e) {
                 e.printStackTrace();
@@ -326,7 +327,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 
         // AlarmManager 객체 얻기
-        am = (AlarmManager)getSystemService(ALARM_SERVICE);
+        am = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         info = new ListViewItem();
     }
@@ -361,15 +362,15 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             unregisterReceiver(AlarmReceiver);
             am.cancel(pendingIntent);
             cancelLocationRequest();
-        } catch(IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
         }
         // AlarmManager에 등록한 alarm 취소
 
         // release all the resources you use
-        if(timer != null)
+        if (timer != null)
             timer.cancel();
-        if(wakeLock != null && wakeLock.isHeld())
+        if (wakeLock != null && wakeLock.isHeld())
             wakeLock.release();
     }
 
@@ -377,13 +378,13 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         // 움직임이면 3초 period로 등록
         // 움직임이 아니면 5초 증가, max 20초로 제한
-        if(moving) {
+        if (moving) {
             Log.d(LOGTAG, "MOVING!!");
             period = periodForMoving;
         } else {
             Log.d(LOGTAG, "NOT MOVING!!");
             period = period + periodIncrement;
-            if(period >= periodMax) {
+            if (period >= periodMax) {
                 period = periodMax;
             }
         }
@@ -409,7 +410,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             }
 
             if (!isRequestRegistered) {
-                setGPSProximityAlert(0);
+                setGPSProximityAlert();
                 isRequestRegistered = true;
             }
         } catch (SecurityException se) {
@@ -434,15 +435,15 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
 
         stringGPSPlace = "";
-        if(isEntering) {
+        if (isEntering) {
             stringGPSPlace = intent.getStringExtra("name");
             Toast.makeText(PeriodicMonitorService.this, "액션 이름: " + intent.getAction() + ", " + stringGPSPlace, Toast.LENGTH_SHORT).show();
         }
-        if(!isEntering) {
-                stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
+        if (!isEntering) {
+            stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
         }
         info.setLocation(stringGPSPlace);
-        if(isEnd){
+        if (isEnd) {
             isEnd = false;
             //isSetTime = false;
             //isSetTime2 = false;
@@ -513,7 +514,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
 
         info.setLocation(stringWifiPlace);
-        if(isEnd){
+        if (isEnd) {
             isEnd = false;
             //isSetTime = false;
             //isSetTime2 = false;
@@ -528,7 +529,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     }
 
     //GPS 접근 알림 설정
-    public void setGPSProximityAlert(int flag) throws SecurityException {
+    public void setGPSProximityAlert() throws SecurityException {
         Location location1;
         Location location2;
 
@@ -542,26 +543,19 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         intent2.putExtra("name", "야외 장소 2");
         location1 = new Location(LocationManager.GPS_PROVIDER);
         location2 = new Location(LocationManager.GPS_PROVIDER);
-
-        if (flag == 0) {
-            location1.setLatitude(36.761349);
-            location1.setLongitude(127.279715);
-            location2.setLatitude(36.763065 );
-            location2.setLongitude(127.282488);
-        } else {
-            location1.setLatitude(latitude);
-            location1.setLongitude(longitude);
-            location2.setLatitude(latitude);
-            location2.setLongitude(longitude);
-        }
+        location1.setLatitude(36.761349);
+        location1.setLongitude(127.279715);
+        location2.setLatitude(36.763065);
+        location2.setLongitude(127.282488);
 
         intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intent, 0);
         intentGPSProximity2 = PendingIntent.getBroadcast(this, 50505, intent2, 0);
         locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 10, -1, intentGPSProximity1);
         locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 10, -1, intentGPSProximity2);
     }
+
     public TimerTask getTask(int flag) {
-        if(flag == 0)
+        if (flag == 0)
             return new TimerTask() {
                 @Override
                 public void run() {
@@ -573,8 +567,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 isSensingGPS = false;
                                 Log.d(TAG, "Wi-Fi 스캔");
                                 scanSuccessful = wifiManager.startScan();
-                                if(timerWifiTimeout != null) {
+                                if (timerWifiTimeout != null) {
                                     timerWifiTimeout.cancel();
+                                    timerWifiTimeout = null;
                                 }
                                 timerWifiTimeout = new Timer();
                                 timerWifiTimeout.schedule(getTask(1), TIMER_WIFI_DELAY);
@@ -595,7 +590,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             return new TimerTask() {
                 @Override
                 public void run() {
-                    if (isSensingWifi && !scanSuccessful) {
+                    if (isSensingWifi) {
                         isSensingWifi = false;
                         intentUpdateStatus.putExtra("status", "");
                         sendBroadcast(intentUpdateStatus);
