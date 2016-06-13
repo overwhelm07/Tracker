@@ -38,7 +38,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final String TAG = "Tracker";
     private static final int TIMER_GPS_DELAY = 3000;
     private static final int TIMER_WIFI_DELAY = 1000 * 5;
-    private static final double STEP_RATIO = 1.65;
+    private static final double STEP_RATIO = 1.7;
     private AlarmManager am;
     private PendingIntent pendingIntent;
     private PowerManager.WakeLock wakeLock;
@@ -48,7 +48,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final long activeTime = 1000;
     private static final long periodForMoving = 1000;//1초
     private static final long periodIncrement = 5000;//정지시 주기 5초 증가
-    private static final long periodMax = 10000;//최대 max 20
+    private static final long periodMax = 20000;//최대 max 20
 
     private double stepCount = 0;
     private long stepCountTV = 0;
@@ -110,7 +110,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             isSetTime2 = false;
 
                             //정지중에 이동 되었을 때
-                            if (keepStop && secCount2 < 30) {
+                            if (keepStop && secCount2 < 300) {
                                 Toast.makeText(PeriodicMonitorService.this, "정지중에 이동이 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime = true;
                                 info.setEndTime();//정지끝나는시간
@@ -131,7 +131,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 info.setStartTime();//이동시작시간
                                 Log.i("이동시작시간", info.getStartTime());
                             }
-                            if (secCount >= 10) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
+                            if (secCount >= 60) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
                                 keepMoving = true;
                             } else {
                                 secCount++;
@@ -140,7 +140,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             isSetTime = false;
 
                             //이동중에 정지가 되었을 때
-                            if (keepMoving && secCount < 10) {
+                            if (keepMoving && secCount < 60) {
                                 Log.d(TAG, "이동중에 정지가 되었을 때");
                                 Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime2 = true;
@@ -165,7 +165,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 info.setStartTime();//정지 시작시간
                                 Log.i("정지시작시간", info.getStartTime());
                             }
-                            if (secCount2 >= 30) {//정지를 300초이상(5분)이상되면 화면에 표시
+                            if (secCount2 >= 300) {//정지를 300초이상(5분)이상되면 화면에 표시
                                 /*
                                 5분이상일 겨우에 info에 setLocation에 실내/실외/등록된 장소
                                  */
@@ -515,8 +515,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
         if (flag == 0) {
-            location1.setLatitude(36.761378);   //36.761378, 127.279720 //테스트 1
-            location1.setLongitude(127.279720); //36.762581, 127.284527 //장소 1
+            location1.setLatitude(36.762581);   //36.761378, 127.279720 //테스트 1
+            location1.setLongitude(127.284527); //36.762581, 127.284527 //장소 1
             location2.setLatitude(36.764215);
             location2.setLongitude(127.282173);
         } else {
