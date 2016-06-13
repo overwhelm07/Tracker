@@ -31,7 +31,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private static final String BROADCAST_ACTION_ALARM = "msp.alarm";
     private static final String BROADCAST_ACTION_LIVESTEP = "msp.tracker.step";
     private static final String ACTION_ALARM_IN_OR_OUT = "msp.koreatech.tracker.alarm";
-    private static final String ACTION_GPS_UPDATE = "msp.koreatech.tracker.gps";
     private static final String ACTION_GPS_PROXIMITY = "msp.koreatech.tracker.gps.proximity";
     private static final String ACTION_GPS_PROXIMITY2 = "msp.koreatech.tracker.gps.2nd.proximity";
     private static final String ACTION_GPS_PROXIMITY_SET = "msp.koreatech.tracker.gps.proximity.set";
@@ -57,8 +56,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private boolean keepMoving = false, keepStop = false;
     private boolean isEnd = false, isSetTime = false, isSetTime2 = false;
     private ListViewItem info;
-
-    private Intent intentUpdateGPS;
     private LocationManager locationManager = null;
     private WifiManager wifiManager;
     private PendingIntent intentGPSProximity1;
@@ -112,7 +109,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                         if (moving) {//이동
                             isSetTime2 = false;
 
-
                             //정지중에 이동 되었을 때
                             if (keepStop && secCount2 < 30) {
                                 Toast.makeText(PeriodicMonitorService.this, "정지중에 이동이 되었을 때", Toast.LENGTH_SHORT).show();
@@ -121,6 +117,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 Log.i("정지끝나는시간", info.setEndTime());
                                 info.setIsMoving(false);
                                 info.setStepCount(0);
+
+                                Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
+                                sendBroadcast(intentInOrOut);
                                 isEnd = true;
                             } else {
                                 secCount2 = 0;
@@ -154,6 +153,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
                                 sendBroadcast(intentInOrOut);
                                 stepCount = 0;
+                                keepMoving = false;
+                                keepStop = false;
                             } else {
                                 stepCountTV = (long) stepCount;
                                 stepCount = 0;
@@ -171,10 +172,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 5분이상일 겨우에 info에 setLocation에 실내/실외/등록된 장소
                                  */
                                 Toast.makeText(PeriodicMonitorService.this, "5분 이상 정지", Toast.LENGTH_SHORT).show();
-                                Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);
-                                sendBroadcast(intentInOrOut);
                                 //info.setLocation();
                                 keepStop = true;
+
                             } else {
                                 Log.d("secCount2 : ", String.valueOf(secCount2));
                                 secCount2 += period / 1000;//정지되어있을때는 1초마다 호출이 아닌 주기마다 호출이되기 때문에 현재 주기(millisecond)에 1000을 나눠 현재 주기의 초를 더함
@@ -222,18 +222,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     checkGPSProximity(intent);
             } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)) {
                 setGPSProximityAlert(1);
-            }
-            if (isEnd) {
-                isEnd = false;
-                //isSetTime = false;
-                //isSetTime2 = false;
-                keepMoving = false;
-                keepStop = false;
-                Log.i("location(isEnd) :", info.getLocation());
-                /*Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
-                intentInfo.putExtra("info", info);
-                // broadcast 전송
-                sendBroadcast(intentInfo);*/
             }
         }
     };
@@ -302,7 +290,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         intentFilter.addAction(ACTION_GPS_PROXIMITY);   //GPS 접근 알림1
         intentFilter.addAction(ACTION_GPS_PROXIMITY2);  //GPS 접근 알림2
         intentFilter.addAction(ACTION_GPS_PROXIMITY_SET);   //(디버깅용) 접근 알림 설정
-        intentUpdateGPS = new Intent(ACTION_GPS_UPDATE);
         registerReceiver(AlarmReceiver, intentFilter);
         setupLocationManager();
         wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
@@ -432,11 +419,13 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         }
         isSensingGPS = false;
 
-        info.setEndTime();
         Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
         intentInfo.putExtra("info", info);
         // broadcast 전송
         sendBroadcast(intentInfo);
+
+        keepMoving = false;
+        keepStop = false;
     }
 
     /* 실내에서 지정된 장소로 접근하는지 확인
@@ -501,11 +490,13 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             stringWifiPlace = "실내";
         }
         info.setLocation(stringWifiPlace);
-        info.setEndTime();
         Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
         intentInfo.putExtra("info", info);
         // broadcast 전송
         sendBroadcast(intentInfo);
+
+        keepMoving = false;
+        keepStop = false;
 
     }
 
