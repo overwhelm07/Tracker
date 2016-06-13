@@ -121,8 +121,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 Log.i("정지끝나는시간", info.setEndTime());
                                 info.setIsMoving(false);
                                 info.setStepCount(0);
-                                //info.setLocation("location");
-                                //keepStop = false;
                                 isEnd = true;
                             } else {
                                 secCount2 = 0;
@@ -137,7 +135,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             }
                             if (secCount >= 10) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
                                 keepMoving = true;
-                                //movingTV.setText("Moving");
                             } else {
                                 secCount++;
                             }
@@ -152,7 +149,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 Log.i("이동 끝나는 시간", info.setEndTime());
                                 info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
                                 info.setStepCount(stepCountTV);
-                                //info.setLocation(""); //체크포인트
                                 isEnd = true;
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
                                 sendBroadcast(intentInOrOut);
@@ -227,16 +223,16 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                 setGPSProximityAlert(1);
             }
             if (isEnd) {
-                //isEnd = false;
+                isEnd = false;
                 //isSetTime = false;
                 //isSetTime2 = false;
                 keepMoving = false;
                 keepStop = false;
-                /*Log.i("location(isEnd) :", info.getLocation());
+                Log.i("location(isEnd) :", info.getLocation());
                 Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
                 intentInfo.putExtra("info", info);
                 // broadcast 전송
-                sendBroadcast(intentInfo);*/
+                sendBroadcast(intentInfo);
             }
         }
     };
@@ -426,18 +422,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
         }
         info.setLocation(stringGPSPlace);
-        if (isEnd) {
-            isEnd = false;
-            //isSetTime = false;
-            //isSetTime2 = false;
-            keepMoving = false;
-            keepStop = false;
-            Log.e("location(gps) :", info.getLocation());
-            Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
-            intentInfo.putExtra("info", info);
-            // broadcast 전송
-            sendBroadcast(intentInfo);
-        }
+
 
         try {
             locationManager.removeUpdates(locationListener);
@@ -493,27 +478,16 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             stringWifiPlace = "다산1층로비";
             isApproaching = true;
         }
-        /*if (isApproaching) { //실내에서 등록된 장소로부터 벗어나는 경우
-            //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
-        }*/
+        if (isApproaching) { //실내에서 등록된 장소로부터 벗어나는 경우
+            Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "으로 접근", Toast.LENGTH_SHORT).show();
+        }
         if (!isApproaching ) {
-            Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(PeriodicMonitorService.this, "실내: " + stringWifiPlace + "에서 벗어남", Toast.LENGTH_SHORT).show();
             stringWifiPlace = "실내";
         }
 
         info.setLocation(stringWifiPlace);
-        if (isEnd) {
-            isEnd = false;
-            //isSetTime = false;
-            //isSetTime2 = false;
-            keepMoving = false;
-            keepStop = false;
-            Log.e("location(wifi) :", info.getLocation());
-            Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
-            intentInfo.putExtra("info", info);
-            // broadcast 전송
-            sendBroadcast(intentInfo);
-        }
+
     }
 
     //GPS 접근 알림 설정
