@@ -542,8 +542,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intent, 0);
         intentGPSProximity2 = PendingIntent.getBroadcast(this, 50505, intent2, 0);
-        locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 10.0f, -1, intentGPSProximity1);
-        locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 10.0f, -1, intentGPSProximity2);
+        locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 80.0f, -1, intentGPSProximity1);
+        locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 50.0f, -1, intentGPSProximity2);
     }
 
     public TimerTask getTask(int flag) {
