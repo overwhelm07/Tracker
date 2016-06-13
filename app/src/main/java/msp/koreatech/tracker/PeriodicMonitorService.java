@@ -103,6 +103,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     @Override
                     public void onFinish() {
                         Log.d(LOGTAG, "1-second accel data collected!!");
+                        Log.i("secCount2", String.valueOf(secCount2));
                         // stop the accel data update
                         accelMonitor.onStop();
 
@@ -110,8 +111,11 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                         // 움직임 여부에 따라 GPS location update 요청 처리
                         if (moving) {//이동
                             isSetTime2 = false;
+
+
                             //정지중에 이동 되었을 때
-                            if (keepStop && secCount2 < 300) {
+                            if (keepStop && secCount2 < 30) {
+                                Toast.makeText(PeriodicMonitorService.this, "정지중에 이동이 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime = true;
                                 info.setEndTime();//정지끝나는시간
                                 Log.i("정지끝나는시간", info.setEndTime());
@@ -125,7 +129,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             }
 
                             stepCount = (stepCount + STEP_RATIO);
-                            Log.e("stepCount", String.valueOf(stepCount));
                             //안움직이고 있다가 움직임이 감자되면 시작시간을 Set
                             if (!keepMoving && !keepStop && !isSetTime) {
                                 isSetTime = true;
@@ -143,7 +146,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
                             //이동중에 정지가 되었을 때
                             if (keepMoving && secCount < 10) {
-                                Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_LONG).show();
+                                Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime2 = true;
                                 info.setEndTime();//이동 끝나는 시간
                                 Log.i("이동 끝나는 시간", info.setEndTime());
@@ -170,7 +173,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 /*
                                 5분이상일 겨우에 info에 setLocation에 실내/실외/등록된 장소
                                  */
-                                Toast.makeText(PeriodicMonitorService.this, "5분 이상 정지", Toast.LENGTH_LONG).show();
+                                Toast.makeText(PeriodicMonitorService.this, "5분 이상 정지", Toast.LENGTH_SHORT).show();
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);
                                 sendBroadcast(intentInOrOut);
                                 //info.setLocation();
@@ -222,19 +225,19 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     checkGPSProximity(intent);
             } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)) {
                 setGPSProximityAlert(1);
-            }/*
+            }
             if (isEnd) {
-                isEnd = false;
+                //isEnd = false;
                 //isSetTime = false;
                 //isSetTime2 = false;
                 keepMoving = false;
                 keepStop = false;
-                Log.i("location(isEnd) :", info.getLocation());
+                /*Log.i("location(isEnd) :", info.getLocation());
                 Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
                 intentInfo.putExtra("info", info);
                 // broadcast 전송
-                sendBroadcast(intentInfo);
-            }*/
+                sendBroadcast(intentInfo);*/
+            }
         }
     };
 
@@ -272,7 +275,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         @Override
         public void onProviderDisabled(String provider) {
             Log.d(TAG, "GPS onProviderDisabled: " + provider);
-            Toast.makeText(PeriodicMonitorService.this, "GPS is off, please turn on!", Toast.LENGTH_LONG).show();
+            Toast.makeText(PeriodicMonitorService.this, "GPS is off, please turn on!", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -409,7 +412,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
     /*실외에서 지정된 장소로 접근하는지 확인*/
     public void checkGPSProximity(Intent intent) {
-
+        Log.e("checkGPSProximity", "GPS");
         boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
         String stringGPSPlace;     //현위치 (실외)
 
@@ -429,7 +432,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             //isSetTime2 = false;
             keepMoving = false;
             keepStop = false;
-            Log.i("location(isEnd) :", info.getLocation());
+            Log.e("location(gps) :", info.getLocation());
             Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
             intentInfo.putExtra("info", info);
             // broadcast 전송
@@ -449,6 +452,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     * 지정된 장소에 등록된 AP가 2개 이상 있고 RSSI 신호 차이가 20 이내에 있으면
     * 등록된 장소로 접근한 것으로 간주한다.*/
     private void checkWifiProximity() {
+        Log.e("checkWifiProximity", "wifi");
         String stringWifiPlace;    //현위치 (실내)
         List<ScanResult> scanList = wifiManager.getScanResults();
         HashMap<String, Integer> hashPlace1 = new HashMap<>();
@@ -504,7 +508,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             //isSetTime2 = false;
             keepMoving = false;
             keepStop = false;
-            Log.i("location(isEnd) :", info.getLocation());
+            Log.e("location(wifi) :", info.getLocation());
             Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
             intentInfo.putExtra("info", info);
             // broadcast 전송
