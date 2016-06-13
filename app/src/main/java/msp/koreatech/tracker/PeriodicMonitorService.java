@@ -459,9 +459,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         stringWifiPlace = "";
         Toast.makeText(this, "checkWifiProximity", Toast.LENGTH_SHORT).show();
-        hashPlace1.put("90:9f:33:5a:2a:88", -45);
-        hashPlace1.put("90:9f:33:59:2a:88", -52);
-        hashPlace1.put("64:e5:99:51:18:60", -52);
+        hashPlace1.put("92:9f:33:cd:28:62", -54);
+        hashPlace1.put("90:9f:33:cd:28:62", -54);
+        hashPlace1.put("50:1c:bf:41:cf:21", -63);
         hashPlace2.put("90:9f:33:cd:28:60", -120);
         hashPlace2.put("00:26:66:cc:e3:88", -148);
         hashPlace2.put("b8:8d:12:65:74:34", -200);
