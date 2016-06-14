@@ -57,6 +57,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     private boolean isSetTime = false, isSetTime2 = false;
     private ListViewItem info;
     private LocationManager locationManager = null;
+    private Location location1, location2;
     private WifiManager wifiManager;
     private PendingIntent intentGPSProximity1;
     private PendingIntent intentGPSProximity2;
@@ -110,7 +111,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             isSetTime2 = false;
 
                             //정지중에 이동 되었을 때
-                            if (keepStop && secCount2 < 15)    //5분   원래 < 였는데 바꿨음
+                            if (keepStop && secCount2 < 300)    //5분   원래 < 였는데 바꿨음
                             {
                                 Toast.makeText(PeriodicMonitorService.this, "정지중에 이동이 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime = true;
@@ -130,7 +131,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 isSetTime = true;
                                 info.setStartTime();//이동시작시간
                             }
-                            if (secCount >= 10) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
+                            if (secCount >= 60) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
                                 keepMoving = true;
                             } else {
                                 secCount++;
@@ -139,7 +140,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             isSetTime = false;
 
                             //이동중에 정지가 되었을 때    1분
-                            if (keepMoving && secCount < 10) {
+                            if (keepMoving && secCount < 60) {
                                 Log.d(TAG, "이동중에 정지가 되었을 때");
                                 Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime2 = true;
@@ -162,7 +163,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                                 isSetTime2 = true;
                                 info.setStartTime();//정지 시작시간
                             }
-                            if (secCount2 >= 15) {//정지를 300초이상(5분)이상되면 화면에 표시
+                            if (secCount2 >= 300) {//정지를 300초이상(5분)이상되면 화면에 표시
                                 /*
                                 5분이상일 겨우에 info에 setLocation에 실내/실외/등록된 장소
                                  */
@@ -213,7 +214,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     isSensingWifi = false;
                 }
             } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY) || intent.getAction().equals(ACTION_GPS_PROXIMITY2)) {
-                if (isSensingGPS) {
+                Log.d(TAG, "ACTION_GPS_PROXIMITY");
+               /* if (isSensingGPS) {
                     isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
                     if(isEntering) {
                         stringGPSPlace = intent.getStringExtra("name");
@@ -223,7 +225,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     if (!isEntering) {
                         stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
                     }
-                }
+                }*/
             } else if (intent.getAction().equals(ACTION_GPS_PROXIMITY_SET)) {
                 setGPSProximityAlert(1);
             }
@@ -242,6 +244,17 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             longitude = location.getLongitude();
             latitude = location.getLatitude();
             accuracy = location.getAccuracy();
+            if(location.distanceTo(location1) <= 80f) {
+                stringGPSPlace = "운동장";
+                isEntering = true;
+            }
+            if(location.distanceTo(location2) <= 50f) {
+                stringGPSPlace = "대학본부";
+                isEntering = true;
+            }
+            if(!isEntering)
+                stringGPSPlace = "실외";
+
             checkGPSProximity();
         }
 
@@ -484,6 +497,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         // broadcast 전송
         sendBroadcast(intentInfo);
 
+        isEntering = false;
         keepMoving = false;
         keepStop = false;
 
@@ -491,7 +505,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
     //GPS 접근 알림 설정
     public void setGPSProximityAlert(int flag) throws SecurityException {
-        Location location1, location2;
         Intent intentGPS1, intentGPS2;
 
         if (intentGPSProximity1 != null && intentGPSProximity2 != null) {
@@ -506,8 +519,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
         if (flag == 0) {    //36.760212, 127.281102 //은솔관
-            location1.setLatitude(36.760212);   //36.761378, 127.279720 //테스트 1
-            location1.setLongitude(127.279720); //36.762581, 127.284527 //장소 1
+            location1.setLatitude(36.762581);   //36.761378, 127.279720 //테스트 1
+            location1.setLongitude(127.284527); //36.762581, 127.284527 //장소 1
             location2.setLatitude(36.764215);
             location2.setLongitude(127.282173);
         } else {
@@ -519,7 +532,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intentGPS1, 0);
         intentGPSProximity2 = PendingIntent.getBroadcast(this, 50505, intentGPS2, 0);
-        locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 100.0f, -1, intentGPSProximity1);
+        locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 80.0f, -1, intentGPSProximity1);
         locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 50.0f, -1, intentGPSProximity2);
     }
 
