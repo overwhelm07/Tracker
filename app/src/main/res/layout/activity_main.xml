@@ -19,7 +19,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Text"
+            android:textSize="30dp"
+            android:textStyle="bold"
+            android:text="dateTV"
             android:id="@+id/dateTV" />
     </LinearLayout>
 
@@ -27,25 +29,40 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
         android:gravity="center">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
             android:text="Moving time: "
-            android:id="@+id/textView2" />
+            android:id="@+id/movingTV" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
             android:text="Steps: "
-            android:id="@+id/textView3" />
+            android:id="@+id/stepsTV" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
             android:text="Top Place: "
-            android:id="@+id/textView4" />
+            android:id="@+id/placeTV" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:text="liveStep: "
+            android:id="@+id/liveStepTV" />
     </LinearLayout>
 
     <LinearLayout
@@ -53,10 +70,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/scrollView" />
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:transcriptMode="alwaysScroll"
+            android:id="@+id/listView"> </ListView>
     </LinearLayout>
 
 </LinearLayout>

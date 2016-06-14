@@ -1,0 +1,63 @@
+4공학관 A312 (수업 강의실)
+06-13 03:38:11.721 2713-2713/msp.koreatech.tracker D/Tracker: 방송 수신: SCAN_RESULTS_AVAILABLE_ACTION
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: NETGEAR67-5G, BSSID: e4:f4:c6:1c:6c:5f, RSSI: -84
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: NETGEAR61, BSSID: e4:f4:c6:1c:7b:6f, RSSI: -63
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: NETGEAR61-5G, BSSID: e4:f4:c6:1c:7b:6e, RSSI: -68
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 50:1c:bf:41:cf:21, RSSI: -63
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: DKEAirPort, BSSID: b8:8d:12:65:74:34, RSSI: -84
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: ap3-data, BSSID: 00:1d:e5:8d:1d:f0, RSSI: -78
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: ap1-voice, BSSID: 00:1d:e5:8d:30:a1, RSSI: -74
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: ap3-voice, BSSID: 00:1d:e5:8d:1d:f1, RSSI: -78
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: DKEAirPort, BSSID: b8:8d:12:65:74:33, RSSI: -79
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: NSTL 5GHz, BSSID: 00:26:66:cc:e3:88, RSSI: -71
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: iptime, BSSID: 90:9f:33:cd:28:62, RSSI: -54
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 50:1c:bf:5f:7c:e1, RSSI: -79
+06-13 03:38:11.732 2713-2713/msp.koreatech.tracker D/Tracker: SSID: , BSSID: 92:9f:33:cd:28:62, RSSI: -54
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: NSTL 2.4GHz, BSSID: 00:26:66:cc:e3:8c, RSSI: -68
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: iMediaLab, BSSID: 90:9f:33:6b:31:b0, RSSI: -83
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: test, BSSID: 90:9f:33:cd:28:60, RSSI: -76
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: A313-3, BSSID: 64:e5:99:51:18:60, RSSI: -74
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: HP-Print-cf-LaserJet 400 color, BSSID: 48:5a:b6:6a:bb:cf, RSSI: -85
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: , BSSID: 50:1c:bf:41:cf:22, RSSI: -63
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 50:1c:bf:5b:2c:c1, RSSI: -75
+06-13 03:38:11.733 2713-2713/msp.koreatech.tracker D/Tracker: SSID: U+zone_FREE, BSSID: 00:40:5a:e4:ac:6b, RSSI: -88
+
+
+다산정보관 1층 로비 (다산홀 입구 앞 테이블/좌석 있는 휴게 공간)
+06-13 04:05:19.181 10634-11420/msp.koreatech.tracker D/Tracker: Wi-Fi 스캔
+06-13 04:05:19.991 10634-10634/msp.koreatech.tracker D/Tracker: 방송 수신: SCAN_RESULTS_AVAILABLE_ACTION
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: a4:18:75:58:77:df, RSSI: -79
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: a4:18:75:58:77:de, RSSI: -78
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 20:3a:07:49:5c:e0, RSSI: -76
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 88:75:56:1f:b6:d0, RSSI: -77
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 34:bd:c8:bf:2a:ae, RSSI: -88
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 18:33:9d:c6:6a:ff, RSSI: -91
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 88:75:56:c7:1f:10, RSSI: -80
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 34:a8:4e:6a:44:61, RSSI: -84
+06-13 04:05:20.001 10634-10634/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 34:bd:c8:bf:2a:a1, RSSI: -87
+
+
+test1(다산1층)
+06-13 19:56:23.669 21811-22511/msp.koreatech.tracker D/Tracker: Wi-Fi 스캔
+06-13 19:56:24.523 21811-21811/msp.koreatech.tracker D/Tracker: 방송 수신: SCAN_RESULTS_AVAILABLE_ACTION
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 20:3a:07:9e:a6:c1, RSSI: -46
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: a4:18:75:58:77:d0, RSSI: -59
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 20:3a:07:49:5c:e1, RSSI: -67
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: a4:18:75:58:77:df, RSSI: -74
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: a4:18:75:58:77:de, RSSI: -74
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 20:3a:07:49:5c:ee, RSSI: -77
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 20:3a:07:49:5c:ef, RSSI: -78
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 34:bd:c8:bf:2a:a1, RSSI: -80
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 20:3a:07:9e:a9:30, RSSI: -80
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 18:33:9d:c6:6a:ff, RSSI: -84
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 18:33:9d:c6:6a:fe, RSSI: -84
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 34:a8:4e:6a:44:6e, RSSI: -88
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 34:a8:4e:6a:44:6f, RSSI: -89
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 64:d9:89:46:4b:ef, RSSI: -91
+06-13 19:56:24.538 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 64:d9:89:46:4b:ee, RSSI: -90
+06-13 19:56:24.539 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 20:3a:07:49:5a:a0, RSSI: -85
+06-13 19:56:24.539 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 88:75:56:c7:1f:11, RSSI: 0
+06-13 19:56:24.539 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 18:33:9d:c6:6a:f0, RSSI: -74
+06-13 19:56:24.539 21811-21811/msp.koreatech.tracker D/Tracker: SSID: , BSSID: 00:08:9f:53:02:00, RSSI: -75
+06-13 19:56:24.539 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP_N, BSSID: 34:a8:4e:6a:44:61, RSSI: -82
+06-13 19:56:24.539 21811-21811/msp.koreatech.tracker D/Tracker: SSID: KUTAP, BSSID: 20:3a:07:9e:a8:70, RSSI: -82
