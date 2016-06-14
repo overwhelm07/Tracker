@@ -110,11 +110,11 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             isSetTime2 = false;
 
                             //정지중에 이동 되었을 때
-                            if (keepStop && secCount2 < 300) {
+                            if (keepStop && secCount2 < 15)    //5분   원래 < 였는데 바꿨음
+                            {
                                 Toast.makeText(PeriodicMonitorService.this, "정지중에 이동이 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime = true;
                                 info.setEndTime();//정지끝나는시간
-                                Log.i("정지끝나는시간", info.setEndTime());
                                 info.setIsMoving(false);
                                 info.setStepCount(0);
 
@@ -129,9 +129,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             if (!keepMoving && !keepStop && !isSetTime) {
                                 isSetTime = true;
                                 info.setStartTime();//이동시작시간
-                                Log.i("이동시작시간", info.getStartTime());
                             }
-                            if (secCount >= 60) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
+                            if (secCount >= 10) {//1초당 검사해서 움직이면 증가 60되면 1분이니깐 화면에 표시
                                 keepMoving = true;
                             } else {
                                 secCount++;
@@ -139,13 +138,12 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                         } else {//정지
                             isSetTime = false;
 
-                            //이동중에 정지가 되었을 때
-                            if (keepMoving && secCount < 60) {
+                            //이동중에 정지가 되었을 때    1분
+                            if (keepMoving && secCount < 10) {
                                 Log.d(TAG, "이동중에 정지가 되었을 때");
                                 Toast.makeText(PeriodicMonitorService.this, "이동중에 정지가 되었을 때", Toast.LENGTH_SHORT).show();
                                 //isSetTime2 = true;
                                 info.setEndTime();//이동 끝나는 시간
-                                Log.i("이동 끝나는 시간", info.setEndTime());
                                 info.setIsMoving(true);//움직임이 1분동안 있었으니깐 이동으로 표시하기위해 true
                                 info.setStepCount(stepCountTV);
                                 Intent intentInOrOut = new Intent(ACTION_ALARM_IN_OR_OUT);  //텍스트에 실내외 구분 없이 등록된 장소 이름만 나와야 함
@@ -163,9 +161,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                             if (!keepStop && !keepMoving && !isSetTime2) {
                                 isSetTime2 = true;
                                 info.setStartTime();//정지 시작시간
-                                Log.i("정지시작시간", info.getStartTime());
                             }
-                            if (secCount2 >= 300) {//정지를 300초이상(5분)이상되면 화면에 표시
+                            if (secCount2 >= 15) {//정지를 300초이상(5분)이상되면 화면에 표시
                                 /*
                                 5분이상일 겨우에 info에 setLocation에 실내/실외/등록된 장소
                                  */
@@ -193,7 +190,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                 Log.d(TAG, "방송 수신: ACTION_ALARM_IN_OR_OUT");
                 isSensingGPS = false;
                 try {
-                    Log.d(TAG, "gps 요청");
+                    Log.d(TAG, "GPS 요청");
                     isGPSFix = false;
                     locationManager.removeUpdates(locationListener);
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2500, 0, locationListener);
@@ -220,7 +217,8 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
                     isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
                     if(isEntering) {
                         stringGPSPlace = intent.getStringExtra("name");
-                        Toast.makeText(PeriodicMonitorService.this, "액션 이름: " + intent.getAction() + ", " + stringGPSPlace, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PeriodicMonitorService.this
+                                , "액션 이름: " + intent.getAction() + ", " + stringGPSPlace, Toast.LENGTH_SHORT).show();
                     }
                     if (!isEntering) {
                         stringGPSPlace = "실외";  //등록된 장소가 아니고 정지해 있을 때
@@ -245,11 +243,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             latitude = location.getLatitude();
             accuracy = location.getAccuracy();
             checkGPSProximity();
-            /*try {
-                locationManager.removeUpdates(locationListener);
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            }*/
         }
 
         @Override
@@ -287,6 +280,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
     @Override
     public void onCreate() {
         Log.d(LOGTAG, "onCreate");
+        Toast.makeText(this, "Activity Monitor 시작", Toast.LENGTH_SHORT).show();
 
         // Alarm 발생 시 전송되는 broadcast를 수신할 receiver 등록
         IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION_ALARM);
@@ -301,16 +295,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         // AlarmManager 객체 얻기
         am = (AlarmManager) getSystemService(ALARM_SERVICE);
         info = new ListViewItem();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // intent: startService() 호출 시 넘기는 intent 객체
-        // flags: service start 요청에 대한 부가 정보. 0, START_FLAG_REDELIVERY, START_FLAG_RETRY
-        // startId: start 요청을 나타내는 unique integer id
-
-        Log.d(LOGTAG, "onStartCommand");
-        Toast.makeText(this, "Activity Monitor 시작", Toast.LENGTH_SHORT).show();
 
         // Alarm이 발생할 시간이 되었을 때, 안드로이드 시스템에 전송을 요청할 broadcast를 지정
         Intent in = new Intent(BROADCAST_ACTION_ALARM);
@@ -320,6 +304,14 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         // 설정한 시간 (5000-> 5초, 10000->10초) 후 alarm 발생
         am.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + period, pendingIntent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // intent: startService() 호출 시 넘기는 intent 객체
+        // flags: service start 요청에 대한 부가 정보. 0, START_FLAG_REDELIVERY, START_FLAG_RETRY
+        // startId: start 요청을 나타내는 unique integer id
+        Log.d(LOGTAG, "onStartCommand");
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -335,7 +327,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
         }
-        // AlarmManager에 등록한 alarm 취소
 
         // release all the resources you use
         if (timer != null)
@@ -409,13 +400,6 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             stringGPSPlace = "실외";
         info.setLocation(stringGPSPlace);
 
-        try {
-            locationManager.removeUpdates(locationListener);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        }
-        isSensingGPS = false;
-
         Intent intentInfo = new Intent(BROADCAST_ACTION_ACTIVITY);
         intentInfo.putExtra("info", info);
         // broadcast 전송
@@ -424,6 +408,13 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         isEntering = false;
         keepMoving = false;
         keepStop = false;
+
+        try {
+            locationManager.removeUpdates(locationListener);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        isSensingGPS = false;
     }
 
     /* 실내에서 지정된 장소로 접근하는지 확인
@@ -463,7 +454,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
             Integer value;
             if (hashPlace1.containsKey(result.BSSID)) {
                 value = hashPlace1.get(result.BSSID);
-                if (value != null && Math.abs(value - result.level) <= 30)
+                if (value != null && Math.abs(value - result.level) <= 20)
                     countPlace1++;
             }
             if (hashPlace2.containsKey(result.BSSID)) {
@@ -514,9 +505,9 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
         location1 = new Location(LocationManager.GPS_PROVIDER);
         location2 = new Location(LocationManager.GPS_PROVIDER);
 
-        if (flag == 0) {
-            location1.setLatitude(36.762581);   //36.761378, 127.279720 //테스트 1
-            location1.setLongitude(127.284527); //36.762581, 127.284527 //장소 1
+        if (flag == 0) {    //36.760212, 127.281102 //은솔관
+            location1.setLatitude(36.760212);   //36.761378, 127.279720 //테스트 1
+            location1.setLongitude(127.279720); //36.762581, 127.284527 //장소 1
             location2.setLatitude(36.764215);
             location2.setLongitude(127.282173);
         } else {
@@ -528,7 +519,7 @@ public class PeriodicMonitorService extends Service implements GpsStatus.Listene
 
         intentGPSProximity1 = PendingIntent.getBroadcast(this, 40404, intentGPS1, 0);
         intentGPSProximity2 = PendingIntent.getBroadcast(this, 50505, intentGPS2, 0);
-        locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 80.0f, -1, intentGPSProximity1);
+        locationManager.addProximityAlert(location1.getLatitude(), location1.getLongitude(), 100.0f, -1, intentGPSProximity1);
         locationManager.addProximityAlert(location2.getLatitude(), location2.getLongitude(), 50.0f, -1, intentGPSProximity2);
     }
 

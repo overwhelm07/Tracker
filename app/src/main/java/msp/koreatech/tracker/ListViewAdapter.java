@@ -1,15 +1,14 @@
 package msp.koreatech.tracker;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * ListView를 사용하기 위한 어댑터 클래스를 생성했습니다
@@ -39,7 +38,7 @@ public class ListViewAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return al.get(position).getStartTime();
+        return al.get(position);    //수정
     }
 
     @Override
@@ -62,9 +61,9 @@ public class ListViewAdapter extends BaseAdapter {
         TextView stepsTV = (TextView) convertView.findViewById(R.id.stepsTV);
         TextView locationTV = (TextView) convertView.findViewById(R.id.locationTV);
         //리스트 뷰에 표시
-        startTimeTV.setText(listViewItem.getStartTime());
-        endTimeTV.setText(listViewItem.getEndTime() + "  ");
-        duringTimeTV.setText(listViewItem.getDuringTime() + "분 ");
+        startTimeTV.setText(String.format(Locale.KOREAN, "%s ", listViewItem.getStartTimeString()));
+        endTimeTV.setText(String.format(Locale.KOREAN, " %s ", listViewItem.getEndTimeString()));
+        duringTimeTV.setText(String.format(Locale.KOREAN, "%s분  ", listViewItem.getDuration()));
         if(listViewItem.isMoving()){
             movingTV.setText(" 이동 ");
         }else{
@@ -83,7 +82,7 @@ public class ListViewAdapter extends BaseAdapter {
                 if(tmp.equals("실내") || tmp.equals("실외")){
                     locationTV.setText(" ");
                 }else{
-                    locationTV.setText(" " + tmp + " ");
+                    locationTV.setText(String.format(Locale.KOREAN, " %s ", tmp));
                 }
             }else{
                 locationTV.setText(listViewItem.getLocation());
@@ -92,6 +91,4 @@ public class ListViewAdapter extends BaseAdapter {
 
         return convertView;
     }
-
-
 }

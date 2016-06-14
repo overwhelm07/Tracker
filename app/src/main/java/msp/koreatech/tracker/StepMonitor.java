@@ -10,7 +10,6 @@ import android.util.Log;
 public class StepMonitor implements SensorEventListener {
     private static final String LOGTAG = "HS_Location_Tracking";
 
-    private Context context;
     private SensorManager mSensorManager;
     private Sensor mLinear;
     private boolean isMoving;
@@ -23,7 +22,6 @@ public class StepMonitor implements SensorEventListener {
     private static final double RMS_THRESHOLD = 0.5;
 
     public StepMonitor(Context context) {
-        this.context = context;
 
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mLinear = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -93,8 +91,8 @@ public class StepMonitor implements SensorEventListener {
         return isMoving;
     }
 
-    //movementCount 리턴
+    /*//movementCount 리턴
     public int getMovementCount(){
         return movementCount;
-    }
+    }*/
 }

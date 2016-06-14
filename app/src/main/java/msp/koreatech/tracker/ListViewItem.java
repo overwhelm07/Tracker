@@ -2,43 +2,67 @@ package msp.koreatech.tracker;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
-/**
- * Created by JeongHeon on 2016. 6. 2..
+/*
+ * Created by JeongHeon on 2016. 6. 14..
  */
 public class ListViewItem implements Parcelable {
-    private String startTime, endTime;
+    private long startTime, endTime;
     private boolean isMoving;
     private long stepCount;
     private String location = " ";
     long time;
-    SimpleDateFormat dayTime = new SimpleDateFormat("hh:mm");
+    SimpleDateFormat dayTime = new SimpleDateFormat("HH:mm", Locale.KOREAN);
+
+    public static final Parcelable.Creator<ListViewItem> CREATOR = new Parcelable.Creator<ListViewItem>() {
+        public ListViewItem createFromParcel(Parcel src) {
+            return new ListViewItem(src);
+        }
+
+        @Override
+        public ListViewItem[] newArray(int size) {
+            return new ListViewItem[0];
+        }
+    };
 
     public ListViewItem() {
 
     }
 
     public ListViewItem(Parcel src) {
-        startTime = src.readString();
-        endTime = src.readString();
+        startTime = src.readLong();
+        endTime = src.readLong();
         isMoving = src.readByte() != 0;
         stepCount = src.readLong();
         location = src.readString();
     }
 
-    public String setStartTime() {
-        time = System.currentTimeMillis();
-        startTime = dayTime.format(new Date(time));
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(startTime);
+        dest.writeLong(endTime);
+        dest.writeByte((byte) (isMoving ? 1 : 0));
+        dest.writeLong(stepCount);
+        dest.writeString(location);
+    }
+
+    public long setStartTime() {
+        startTime = System.currentTimeMillis();
         return startTime;
     }
 
-    public String setEndTime() {
+    public long setEndTime() {
         time = System.currentTimeMillis();
-        endTime = dayTime.format(new Date(time));
+        endTime = System.currentTimeMillis();
         return endTime;
     }
 
@@ -54,46 +78,16 @@ public class ListViewItem implements Parcelable {
         this.location = location;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public String getStartTimeString() {
+        return dayTime.format(new Date(startTime));
     }
 
-    public String getEndTime() {
-        return endTime;
+    public String getEndTimeString() {
+        return dayTime.format(new Date(endTime));
     }
 
-    /*
-    11:28-08:17 289분 잘못 표시됨
-     */
-    public String getDuringTime() {
-        int during;
-        String sHour = startTime.substring(0, 2);
-        String sMin = startTime.substring(3, 5);
-        Log.d("infoLog", sHour + " : " + sMin);
-        String eHour = endTime.substring(0, 2);
-        String eMin = endTime.substring(3, 5);
-        int hour1 = Integer.parseInt(sHour);
-        int min1 = Integer.parseInt(sMin);
-        int hour2 = Integer.parseInt(eHour);
-        int min2 = Integer.parseInt(eMin);
-
-        if (hour1 == hour2) {
-            during = Math.abs(min1 - min2);
-            return String.valueOf(during);
-        } else {
-            if (min1 > min2) {
-                during = 60 - min1 + min2;
-                if (Math.abs((hour1 + 1) - hour2) == 0) {
-                    return String.valueOf(during);
-                } else {
-                    during += Math.abs((hour1 + 1) - hour2) * 60;
-                    return String.valueOf(during);
-                }
-            } else {
-                during = (hour2 - hour1) * 60 + (min2 - min1);
-                return String.valueOf(during);
-            }
-        }
+    public long getDuration() {
+        return TimeUnit.MILLISECONDS.toMinutes(endTime - startTime) + 1;
     }
 
     public boolean isMoving() {
@@ -107,32 +101,4 @@ public class ListViewItem implements Parcelable {
     public String getLocation() {
         return location;
     }
-
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(startTime);
-        dest.writeString(endTime);
-        dest.writeByte((byte) (isMoving ? 1 : 0));
-        dest.writeLong(stepCount);
-        dest.writeString(location);
-
-
-    }
-
-    public static final Parcelable.Creator<ListViewItem> CREATOR = new Parcelable.Creator<ListViewItem>() {
-        public ListViewItem createFromParcel(Parcel src) {
-            return new ListViewItem(src);
-        }
-
-        @Override
-        public ListViewItem[] newArray(int size) {
-            return new ListViewItem[0];
-        }
-    };
 }

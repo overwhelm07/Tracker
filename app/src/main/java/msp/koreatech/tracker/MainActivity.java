@@ -14,6 +14,7 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private static final String BROADCAST_ACTION_ACTIVITY = "msp.tracker";
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     ListViewItem info;
     ArrayList<ListViewItem> al;
     ListView listView;
-    int topPlaceDuringTime = 0;
+    long topPlaceDuringTime = 0;
 
     private BroadcastReceiver MyStepReceiver = new BroadcastReceiver() {
         @Override
@@ -38,29 +39,29 @@ public class MainActivity extends AppCompatActivity {
                 //boolean moving = intent.getBooleanExtra("moving", false);
                 info = new ListViewItem();
                 info = intent.getParcelableExtra("info");
-                Log.e("startTime", info.getStartTime());
-                Log.e("duringTime", info.getDuringTime());
+                Log.e("startTime", info.getStartTimeString());
+                Log.e("duringTime", info.getDuration() + "");
                 Log.e("stepCount", String.valueOf(info.getStepCount()));
                 Log.e("location", info.getLocation());
                 al.add(info);
 
                 //정지 되어있으면 그 때 duringTime을 이용해서 TopPlace의 장소를 구분한다
                 if (!info.isMoving()) {
-                    if (topPlaceDuringTime < Integer.valueOf(info.getDuringTime())) {
+                    if (topPlaceDuringTime < info.getDuration()) {
                         String tmp = info.getLocation().trim();
                         if (!(tmp.equals("") || tmp.equals("실외") || tmp.equals("실내"))) {
-                            topPlaceDuringTime = Integer.valueOf(info.getDuringTime());
-                            placeTV.setText("Top Place : " + info.getLocation());
+                            topPlaceDuringTime = info.getDuration();
+                            placeTV.setText(String.format(Locale.KOREAN, "Top Place : %s", info.getLocation()));
                         }
                     }
                 }
 
                 if (al.get(al.size() - 1).isMoving()) {
-                    movingTimeSum += Integer.valueOf(al.get(al.size() - 1).getDuringTime());
+                    movingTimeSum += al.get(al.size() - 1).getDuration();
                     stepCountSum += al.get(al.size() - 1).getStepCount();
                 }
-                movingTV.setText("Moving time: " + movingTimeSum + "분");
-                stepTV.setText("Steps: " + stepCountSum);
+                movingTV.setText(String.format(Locale.KOREAN, "Moving time: %d분 ", movingTimeSum));
+                stepTV.setText(String.format(Locale.KOREAN, "Steps: %d", stepCountSum));
 
                 //어댑터에 모델이 바뀌었다고 알리기
                 adapter.notifyDataSetChanged();
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if (intent.getAction().equals(BROADCAST_ACTION_LIVESTEP)) {
                 //Log.e("listep call", String.valueOf(intent.getExtras().getLong("step")));
-                liveStepTV.setText("liveStep: " + String.valueOf(intent.getExtras().getDouble("step")));
+                liveStepTV.setText(String.format(Locale.KOREAN, "liveStep: %f", intent.getExtras().getDouble("step")));
             }
         }
     };
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         long now = System.currentTimeMillis();
         //현재 시간을 저장한다
         Date date = new Date(now);
-        SimpleDateFormat curDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
+        SimpleDateFormat curDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREAN);
         String strCurDate = curDateFormat.format(date);
         dateTV.setText(strCurDate);
 
